@@ -1,0 +1,18 @@
+.post-book-card { min-width: 0; padding: 24px 0 0; }
+.post-book-stage { position: relative; width: min(248px, calc(100% - 32px)); margin: 0 auto; }
+.post-book-stage .ds-book { width: 100%; --book-cover: var(--raised); --book-text: var(--ink); --book-back: var(--surface); }
+.post-book-stage .ds-book-title { font-family: var(--sans); }
+.post-book-action { position: absolute; inset: 0; width: 100%; border: 0; border-radius: 6px 4px 4px 6px; padding: 0; background: transparent; }
+.post-book-action:focus-visible { outline: 2px solid var(--focus); outline-offset: 10px; }
+.post-book-mark { font: 600 24px/20px var(--serif); }
+.post-book-details { max-width: 360px; margin: 32px auto 0; }
+.post-book-details > p { color: var(--muted); margin-top: 12px; font-size: var(--text-sm); }
+.post-book-details .metadata { margin-top: 16px; }
+.editorial-grid { align-items: start; }
+@media (hover: hover) {
+  .post-book-stage:hover .ds-book-rotate { transform: rotateY(-20deg) scale(1.066) translateX(-8px); }
+}
+.post-book-stage:focus-within .ds-book-rotate { transform: rotateY(-20deg) scale(1.066) translateX(-8px); }
+@media (prefers-reduced-motion: reduce) {
+  .post-book-stage:hover .ds-book-rotate, .post-book-stage:focus-within .ds-book-rotate { transform: none; }
+}

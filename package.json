@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "lucide-solid": "^1.48.0",
     "solid-js": "^1.9.15"
   },
   "devDependencies": {
