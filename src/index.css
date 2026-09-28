@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Geist+Mono:wght@400;500&display=swap');
 @import './design-system/components.css';
+@import './app/public.css';
 :root {
  --paper:#f8f6f1; --surface:#efece5; --raised:#fdfcf9; --sand:#d8d0c3; --ink:#28251f; --muted:#686056; --accent:#a74832; --accent-hover:#883923; --accent-soft:#f0e2d8; --border:#ded8ce; --focus:#a74832; --success:#43634b;
  --sans:'Manrope',sans-serif; --serif:'Newsreader',Georgia,serif; --mono:'Geist Mono',monospace;

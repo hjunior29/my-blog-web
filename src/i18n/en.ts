@@ -2,9 +2,11 @@ import type { Copy } from './types.ts'
 
 export const en: Copy = {
   brandName: 'Helder',
+  navMain: 'Main navigation',
   navArticles: 'Articles',
   navAbout: 'About',
   navStudio: 'Studio',
+  switchLocale: 'Switch language',
   lightTheme: 'Light theme',
   darkTheme: 'Dark theme',
   skipToContent: 'Skip to content',
@@ -45,6 +47,7 @@ export const en: Copy = {
   aboutPageTitle: 'About this space',
   aboutPageIntro: 'Building software is a continuous exercise in learning how to observe.',
   aboutPageBio: 'Hi! I am Helder, a software developer. This blog is a personal archive of thoughts on engineering, architectural simplicity, typography, and human interfaces.',
+  aboutPageColophonTitle: 'Colophon',
   aboutPageColophon: 'Crafted with SolidJS, Rust, SQLite, and Newsreader typography.',
 
   studioAccessTitle: 'Studio Access',

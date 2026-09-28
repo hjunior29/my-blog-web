@@ -8,9 +8,11 @@ export interface ArticleSample {
 
 export interface Copy {
   readonly brandName: string
+  readonly navMain: string
   readonly navArticles: string
   readonly navAbout: string
   readonly navStudio: string
+  readonly switchLocale: string
   readonly lightTheme: string
   readonly darkTheme: string
   readonly skipToContent: string
@@ -51,6 +53,7 @@ export interface Copy {
   readonly aboutPageTitle: string
   readonly aboutPageIntro: string
   readonly aboutPageBio: string
+  readonly aboutPageColophonTitle: string
   readonly aboutPageColophon: string
 
   readonly studioAccessTitle: string

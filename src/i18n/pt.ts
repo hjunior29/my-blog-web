@@ -2,9 +2,11 @@ import type { Copy } from './types.ts'
 
 export const pt: Copy = {
   brandName: 'Helder',
+  navMain: 'Navegação principal',
   navArticles: 'Artigos',
   navAbout: 'Sobre',
   navStudio: 'Studio',
+  switchLocale: 'Mudar idioma',
   lightTheme: 'Tema claro',
   darkTheme: 'Tema escuro',
   skipToContent: 'Ir para o conteúdo',
@@ -45,6 +47,7 @@ export const pt: Copy = {
   aboutPageTitle: 'Sobre este espaço',
   aboutPageIntro: 'Construir software é uma forma contínua de aprender a observar.',
   aboutPageBio: 'Olá! Sou Helder, desenvolvedor de software. Este blog é um arquivo pessoal de reflexões sobre engenharia, simplicidade arquitetural, tipografia e interfaces humanas.',
+  aboutPageColophonTitle: 'Colofão',
   aboutPageColophon: 'Construído com SolidJS, Rust, SQLite e tipografia Newsreader.',
 
   studioAccessTitle: 'Acesso ao Studio',
