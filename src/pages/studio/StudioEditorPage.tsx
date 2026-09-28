@@ -95,7 +95,6 @@ export function StudioEditorPage() {
       const res = await apiClient.previewPost({ content_md: markdown })
       setPreviewHtml(res.content_html)
     } catch {
-      // preview fallback
     } finally {
       setPreviewLoading(false)
     }
