@@ -7,6 +7,7 @@ import { TagInput } from './TagInput'
 import { PasswordField } from './PasswordField'
 import { ArticleProse } from './ArticleProse'
 import { MotionControl, isMotionPaused, setMotionPaused } from './MotionControl'
+import { EditorialScene } from './EditorialScene'
 import { PostCard } from './editorial'
 
 describe('PostCard component', () => {
@@ -269,5 +270,82 @@ describe('MotionControl component', () => {
     fireEvent.click(btn)
     expect(isMotionPaused()).toBe(true)
     expect(document.documentElement.getAttribute('data-motion-paused')).toBe('true')
+  })
+})
+
+describe('EditorialScene component', () => {
+  it('renders hero scene variant by default with scoped aria-hidden', () => {
+    const { container } = render(() => (
+      <EditorialScene motionLabel="Pause" />
+    ))
+    const scene = container.querySelector('.editorial-scene.scene-hero')
+    expect(scene).not.toBeNull()
+    const art = container.querySelector('.notebook-art')
+    expect(art?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  it('renders workshop scene variant with accessible copy and hidden stage', () => {
+    const { container, getByText } = render(() => (
+      <EditorialScene
+        variant="workshop"
+        workshopTitle="Workshop Title"
+        workshopText="Workshop Description"
+      />
+    ))
+    const scene = container.querySelector('.editorial-scene.scene-workshop')
+    expect(scene).not.toBeNull()
+    expect(getByText('Workshop Title')).not.toBeNull()
+    expect(getByText('Workshop Description')).not.toBeNull()
+    const stage = container.querySelector('.workshop-stage')
+    expect(stage?.getAttribute('aria-hidden')).toBe('true')
+    expect(container.querySelector('.workshop-folio-stack')).not.toBeNull()
+  })
+
+  it('updates data-in-view on visibilitychange event', () => {
+    const { container } = render(() => <EditorialScene variant="hero" />)
+    const scene = container.querySelector('.editorial-scene')
+    expect(scene?.getAttribute('data-in-view')).toBe('true')
+
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(scene?.getAttribute('data-in-view')).toBe('false')
+
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(scene?.getAttribute('data-in-view')).toBe('true')
+  })
+
+  it('observes element via IntersectionObserver and disconnects on unmount', () => {
+    let observedEl: Element | null = null
+    let disconnected = false
+    let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null
+
+    class MockIntersectionObserver {
+      constructor(callback: (entries: IntersectionObserverEntry[]) => void) {
+        observerCallback = callback
+      }
+      observe(el: Element) {
+        observedEl = el
+      }
+      disconnect() {
+        disconnected = true
+      }
+      unobserve() {}
+    }
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+
+    const { container, unmount } = render(() => <EditorialScene variant="workshop" />)
+    const scene = container.querySelector('.editorial-scene')
+    expect(observedEl).toBe(scene)
+
+    observerCallback!([{ isIntersecting: false } as IntersectionObserverEntry])
+    expect(scene?.getAttribute('data-in-view')).toBe('false')
+
+    observerCallback!([{ isIntersecting: true } as IntersectionObserverEntry])
+    expect(scene?.getAttribute('data-in-view')).toBe('true')
+
+    unmount()
+    expect(disconnected).toBe(true)
+    vi.unstubAllGlobals()
   })
 })

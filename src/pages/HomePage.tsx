@@ -4,8 +4,7 @@ import { useI18n } from '../i18n/index.ts'
 import { apiClient } from '../lib/api/client.ts'
 import { mapPostSummaryToViewModel } from '../lib/api/mappers.ts'
 import type { PostViewModel, TagWithCountDto } from '../lib/api/types.ts'
-import { PostGrid, Author, Arrow, Alert, EmptyState, Skeleton, Button, Badge } from '../design-system'
-import { NotebookArt } from '../design-system/editorial'
+import { PostGrid, Author, Arrow, Alert, EmptyState, Skeleton, Button, Badge, EditorialScene } from '../design-system'
 
 export function HomePage() {
   const { t, locale } = useI18n()
@@ -53,7 +52,7 @@ export function HomePage() {
         </div>
 
         <div class="home-hero-visual" aria-hidden="true">
-          <NotebookArt compact motionLabel={t().pauseAnimations} />
+          <EditorialScene variant="hero" motionLabel={t().pauseAnimations} />
         </div>
       </section>
 
@@ -134,11 +133,12 @@ export function HomePage() {
         </div>
       </section>
 
-      <section class="home-closing-section">
-        <div class="home-closing-card">
-          <h3>{t().closingTitle}</h3>
-          <p>{t().closingSubtitle}</p>
-        </div>
+      <section class="home-interlude-section">
+        <EditorialScene
+          variant="workshop"
+          workshopTitle={t().closingTitle}
+          workshopText={t().closingSubtitle}
+        />
       </section>
     </div>
   )
