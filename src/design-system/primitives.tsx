@@ -1,5 +1,5 @@
 import { Icon } from './Icon'
-import { For, Show, splitProps, type JSX } from 'solid-js'
+import { Show, splitProps, type JSX } from 'solid-js'
 
 export function Button(props: JSX.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; size?: 'small' | 'large'; busy?: boolean }) {
   const [local, rest] = splitProps(props, ['variant', 'size', 'busy', 'children', 'class', 'disabled'])
@@ -28,8 +28,5 @@ export function EmptyState(props: { title: string; description: string; children
 }
 export function Skeleton(props: { label: string; paused?: boolean }) {
   return <div class="skeleton" data-paused={props.paused} role="status" aria-label={props.label}><div class="skeleton-image" /><div class="skeleton-line short" /><div class="skeleton-line" /><div class="skeleton-line medium" /><span class="sr-only">{props.label}</span></div>
-}
-export function Pagination(props: { page: number; onChange: (page: number) => void; label: string; previous: string; next: string }) {
-  return <nav class="pagination" style={{ "--page-index": props.page - 1 }} aria-label={props.label}><Button variant="ghost" disabled={props.page === 1} aria-label={props.previous} onClick={() => props.onChange(props.page - 1)}><Icon name="arrowLeft" size={16} /></Button><For each={[1, 2, 3, 4]}>{page => <Button variant="ghost" aria-label={`${props.label} ${page}`} aria-current={props.page === page ? 'page' : undefined} onClick={() => props.onChange(page)}>{page}</Button>}</For><Button variant="ghost" disabled={props.page === 4} aria-label={props.next} onClick={() => props.onChange(props.page + 1)}><Icon name="arrowRight" size={16} /></Button></nav>
 }
 export { Accordion } from './Accordion'

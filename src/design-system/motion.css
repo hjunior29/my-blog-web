@@ -21,6 +21,18 @@
   :root { --motion-fast: 0ms; --motion-enter: 0ms; --motion-exit: 0ms; }
 }
 
+:root[data-motion-paused='true'] {
+  --motion-fast: 0ms;
+  --motion-enter: 0ms;
+  --motion-exit: 0ms;
+}
+:root[data-motion-paused='true'] *,
+:root[data-motion-paused='true'] *::before,
+:root[data-motion-paused='true'] *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
 .pagination { position: relative; isolation: isolate; }
 .pagination::before { content: ''; position: absolute; z-index: -1; top: 0; left: 44px; width: 40px; height: 100%; border-radius: var(--radius-sm); background: var(--ink); transform: translateX(calc(var(--page-index) * 44px)); transition: transform var(--motion-enter) var(--ease-enter); }
 .pagination .button { width: 40px; padding-inline: 0; flex: 0 0 40px; }
