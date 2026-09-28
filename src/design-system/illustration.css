@@ -1,0 +1,44 @@
+.illustration { width: 100%; }
+.art-motion-control { font-size: var(--text-xs); margin-top: 12px; }
+.art-motion-control[aria-pressed='true'] { color: var(--accent); }
+.illustration .notebook-art { perspective: 900px; }
+.illustration .paper-front { animation: paper-drift 5.4s cubic-bezier(.45,0,.25,1) infinite; }
+.illustration .paper-back { animation: paper-back-drift 5.4s cubic-bezier(.45,0,.25,1) infinite; }
+.illustration .paper-asterisk { animation: paper-mark-turn 5.4s ease-in-out infinite; }
+.illustration .art-orbit { animation: orbit-sweep 10.8s linear infinite; }
+.art-satellite { position: absolute; width: 14px; height: 14px; top: 13%; left: 13%; border-radius: 50%; background: #a74832; }
+.art-satellite.secondary { width: 9px; height: 9px; top: auto; left: auto; bottom: 13%; right: 13%; background: #776a59; }
+.illustration .paper-lines i { transform-origin: left center; animation: ink-reveal 5.4s ease-in-out infinite; }
+.illustration .paper-lines i:nth-child(2) { animation-delay: -.15s; }
+.illustration .paper-lines i:nth-child(3) { animation-delay: -.3s; }
+.illustration .paper-lines i:nth-child(4) { animation-delay: -.45s; }
+@keyframes paper-drift {
+  0%,100% { transform: translate(0,0) rotate(-9deg) rotateY(0); }
+  25% { transform: translate(-18%, -8%) rotate(-22deg) rotateY(-14deg) scale(1.04); }
+  55% { transform: translate(22%, 4%) rotate(16deg) rotateY(18deg) scale(1.08); }
+  78% { transform: translate(-5%, -12%) rotate(-4deg) rotateY(-8deg); }
+}
+@keyframes paper-back-drift {
+  0%,100% { transform: rotate(12deg); }
+  25% { transform: translate(25%, 7%) rotate(28deg) scale(.95); }
+  55% { transform: translate(-24%, -6%) rotate(-20deg) scale(1.04); }
+  78% { transform: translate(8%, 5%) rotate(18deg); }
+}
+@keyframes paper-mark-turn { 0%,15% { transform: rotate(0) scale(1); } 55% { transform: rotate(240deg) scale(1.35); } 85%,100% { transform: rotate(360deg) scale(1); } }
+@keyframes orbit-sweep { from { transform: translate(-50%,-50%) rotate(0) scale(.88); } 50% { transform: translate(-50%,-50%) rotate(180deg) scale(1.06); } to { transform: translate(-50%,-50%) rotate(360deg) scale(.88); } }
+@keyframes ink-reveal { 0%,100% { transform: scaleX(1); opacity: 1; } 35% { transform: scaleX(.3); opacity: .4; } 65% { transform: scaleX(1); opacity: 1; } }
+.art-correspondence .paper-front { width: 42%; height: 55%; left: 29%; top: 20%; animation: letter-flight 6.4s cubic-bezier(.45,0,.25,1) infinite; }
+.art-correspondence .paper-back { width: 44%; height: 62%; left: 34%; top: 14%; background: #b4b8a5; animation: letter-companion 6.4s ease-in-out infinite; }
+.art-correspondence .paper-asterisk { display: none; }
+.art-envelope { position: absolute; left: 20%; bottom: 13%; width: 60%; height: 40%; background: #c6a68a; box-shadow: 4px 8px 16px #44362320; transform: rotate(-3deg); animation: envelope-drift 6.4s ease-in-out infinite; }
+.art-envelope::before,.art-envelope::after { content: ''; position: absolute; inset: 0; }
+.art-envelope::before { background: #dcc8ad; clip-path: polygon(0 0,50% 68%,100% 0); transform-origin: center top; animation: envelope-flap 6.4s ease-in-out infinite; }
+.art-envelope::after { background: #d1b797; clip-path: polygon(0 100%,0 12%,50% 65%,100% 12%,100% 100%); }
+.art-stamp { position: absolute; right: 24%; bottom: 20%; color: #f8f6f1; background: #a74832; padding: 8px; transform: rotate(8deg); animation: stamp-flight 6.4s ease-in-out infinite; }
+@keyframes letter-flight { 0%,100% { transform: translateY(42%) rotate(-4deg) scale(.92); } 25% { transform: translateY(-12%) rotate(-16deg); } 48% { transform: translate(16%,-20%) rotate(12deg) scale(1.08); } 70% { transform: translate(-12%,-12%) rotate(-12deg); } }
+@keyframes letter-companion { 0%,100% { transform: translateY(28%) rotate(12deg); } 35% { transform: translate(28%,-4%) rotate(28deg); } 65% { transform: translate(-22%,8%) rotate(-18deg); } }
+@keyframes envelope-drift { 0%,100% { transform: translateY(0) rotate(-3deg); } 30% { transform: translate(-4%,8%) rotate(-10deg); } 65% { transform: translate(4%,-6%) rotate(8deg); } }
+@keyframes envelope-flap { 0%,100% { transform: rotateX(0); } 25%,70% { transform: rotateX(160deg); } }
+@keyframes stamp-flight { 0%,100% { transform: translate(0,0) rotate(8deg) scale(1); } 30% { transform: translate(22%,-80%) rotate(-18deg) scale(1.2); } 60% { transform: translate(-30%,-130%) rotate(28deg) scale(1.3); } 80% { transform: translate(10%,-20%) rotate(-8deg); } }
+.illustration[data-paused='true'] .notebook-art *, .illustration[data-paused='true'] .notebook-art *::before { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .art-motion-control { display: none; } .illustration .notebook-art *, .illustration .notebook-art *::before { animation: none !important; } }

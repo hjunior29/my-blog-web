@@ -4,9 +4,7 @@ import { Arrow, Badge } from './primitives'
 import { Book } from './Book'
 import './post-card.css'
 
-export function NotebookArt(props: { compact?: boolean }) {
-  return <div class={`notebook-art ${props.compact ? 'compact' : ''}`} aria-hidden="true"><div class="art-orbit" /><div class="art-paper paper-back" /><div class="art-paper paper-front"><span class="paper-mark">h.</span><div class="paper-lines"><i /><i /><i /><i /></div><span class="paper-asterisk"><Icon name="asterisk" size={48} /></span><span class="paper-bottom">NOTES & IDEAS<br />VOL. 01 / 2026</span></div><div class="art-caption">A WORK IN PROGRESS</div><span class="art-coordinate">23° S / 46° W</span></div>
-}
+export { NotebookArt } from './NotebookArt'
 export function PostCard(props: { category: string; title: string; description: string; date: string; readingTime: string; coverImage?: string; coverPosition?: string; onOpen: (trigger: HTMLElement) => void }) {
   return <article class="post-card post-book-card">
     <div class="post-book-stage">

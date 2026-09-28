@@ -2,7 +2,7 @@
 
 Reference: https://vercel.com/geist/book, inspected September 26, 2026.
 
-This is a local SolidJS reproduction, not an official Vercel package or affiliation. The original comparison remains in the homepage Book study. Editorial posts now compose Book through PostCard, while portfolio cards retain their existing layout.
+This is a local SolidJS reproduction, not an official Vercel package or affiliation. The Book catalog page presents local cover variants using the blog identity. Editorial posts now compose Book through PostCard, while portfolio cards retain their existing layout.
 
 ## API
 
@@ -34,9 +34,9 @@ This is a local SolidJS reproduction, not an official Vercel package or affiliat
 
 Measured geometry: 49:60 aspect ratio, 900 px perspective, 29% book depth, 8.2% binding width, 6.1% content padding, and 6/4 px corner radii. Hover rotates -20 degrees, scales to 1.066, and translates -8 px over 250 ms. Geist 600 is scoped to cover titles. The stripe reference measures 196 × 240 px with a 114.641 px stripe and 125.359 px content body at the default English title.
 
-Binding and page-light gradients are a deliberate, component-scoped exception to the project's flat-surface rule, required for this requested reproduction. The reference amber and illustration colors are limited to the comparison examples. The third cover uses the blog's accent and personal mark. Reference wording remains English in both locales to make comparison possible.
+Binding and page-light gradients are a deliberate, component-scoped exception to the project's flat-surface rule, required for this requested reproduction. The catalog uses localized blog titles, the terracotta accent, and the personal mark.
 
-This study does not claim pixel-perfect parity across browsers. Font rasterization, page background, and theme context affect the rendered result. The outer demonstration layout intentionally uses the existing design system.
+This study does not claim pixel-perfect parity across browsers. Font rasterization, page background, and theme context affect the rendered result. The catalog layout uses the existing design system.
 
 ## Texture provenance
 
@@ -57,7 +57,7 @@ Production build and TypeScript checks pass. Browser checks covered default dime
 
 PostCard uses a 248 px cover (about 27% larger than the reference), blog typography, and semantic theme colors. The title is on the cover; category, description, date, and reading time sit below. A transparent native button covers the book without removing its heading semantics, supports Enter/Space, and starts the article transition. Hover and keyboard focus reveal the same 3D pose.
 
-The editorial specimen includes a bilingual cover-image toggle to compare image and color-only states. Its local SVG cover is an original decorative illustration. Post images use object-fit cover and do not affect layout while loading.
+The Book page compares image and color-only covers; the article shelf alternates both variants. Its local SVG cover is an original decorative illustration. Post images use object-fit cover and do not affect layout while loading.
 
 
 ## Article transition
@@ -66,4 +66,4 @@ The editorial specimen includes a bilingual cover-image toggle to compare image 
 
 The animation uses native Web Animations and a temporary dialog in the top layer, without another library. Transform and opacity drive the animation. The book stays at its original position while opening, then zooms to fill the viewport. Both inner pages keep light paper (#f8f6f1) and dark ink (#28251f) in either theme, with decorative text lines that fade during the zoom. The full sequence takes about 1.05 seconds. Escape cancels, AbortSignal supports navigation cleanup, and reduced-motion users go directly to the article. Temporary nodes, animations, scroll locks, and source visibility are cleaned up when complete or canceled.
 
-The catalog opens its sample article at `#article`. ArticlePage uses the existing editorial typography and surfaces, with optional image, author, metadata, prose, and a return action. Book geometry exists only during the transition. The app restores heading focus after entry and post-button focus after return.
+The catalog opens its sample article at `#article` and returns to the originating component page. ArticlePage uses the existing editorial typography and surfaces, with optional image, author, metadata, prose, and a return action. Book geometry exists only during the transition. The app restores heading focus after entry and post-button focus after return.
