@@ -111,23 +111,35 @@ export interface Copy {
   readonly conflictResolveRemote: string
   readonly exportMarkdownButton: string
   readonly importMarkdownButton: string
+  readonly markdownImportedSuccess: string
+  readonly titleRequiredError: string
+  readonly draftCreatedSuccess: string
+  readonly draftUpdatedSuccess: string
+  readonly articlePublishedSuccess: string
+  readonly articleUnpublishedSuccess: string
+  readonly backToPostsAction: string
 
   readonly studioAccountTitle: string
   readonly displayNameLabel: string
   readonly bioLabel: string
   readonly saveProfileButton: string
   readonly profileSavedSuccess: string
+  readonly displayNameRequiredError: string
   readonly changePasswordTitle: string
   readonly currentPasswordLabel: string
   readonly newPasswordLabel: string
   readonly confirmPasswordLabel: string
   readonly updatePasswordButton: string
   readonly passwordUpdatedSuccess: string
+  readonly currentPasswordRequiredError: string
+  readonly newPasswordMinLengthError: string
+  readonly passwordsDoNotMatchError: string
   readonly activeSessionsTitle: string
   readonly currentSessionBadge: string
   readonly revokeSessionButton: string
   readonly revokeAllSessionsButton: string
   readonly sessionRevokedSuccess: string
+  readonly unknownDeviceFallback: string
   readonly logoutButton: string
 
   readonly pauseAnimations: string
