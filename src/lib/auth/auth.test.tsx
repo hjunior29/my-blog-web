@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, fireEvent } from '@solidjs/testing-library'
 import { Router, Route } from '@solidjs/router'
 import { authStore } from './authStore'
+import { ApiError } from '../api/errors'
 import { apiClient } from '../api/client'
 import { I18nProvider } from '../../i18n'
 import { StudioAccessPage } from '../../pages/studio/StudioAccessPage'
@@ -11,6 +12,7 @@ import { StudioLayout } from '../../app/StudioLayout'
 describe('authStore', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    vi.spyOn(apiClient, 'getCsrfToken').mockResolvedValue('csrf')
     authStore.setStatus('unknown')
     authStore.setUser(null)
   })
@@ -54,36 +56,28 @@ describe('authStore', () => {
     expect(authStore.status()).toBe('unauthorized')
   })
 
-  it('refreshes session and recovers authenticated status when 401 occurs', async () => {
-    vi.spyOn(apiClient, 'getCurrentUser')
-      .mockRejectedValueOnce(new Error('Unauthorized'))
-      .mockResolvedValueOnce({
-        id: 'u1',
-        email: 'refreshed@example.com',
-        display_name: 'Refreshed User',
-        bio: null,
-        role: 'owner',
-        status: 'active',
-        created_at: 1727400000,
-        updated_at: 1727400000,
-      })
-    const refreshSpy = vi.spyOn(apiClient, 'refreshToken').mockResolvedValue(undefined)
-
-    const ok = await authStore.checkAuth()
-    expect(ok).toBe(true)
-    expect(refreshSpy).toHaveBeenCalled()
-    expect(authStore.status()).toBe('authenticated')
-    expect(authStore.user()?.email).toBe('refreshed@example.com')
+  it('keeps network failures distinct from expired sessions without another refresh', async () => {
+    vi.spyOn(apiClient, 'getCurrentUser').mockRejectedValue(new Error('Offline'))
+    const refresh = vi.spyOn(apiClient, 'refreshToken')
+    expect(await authStore.checkAuth()).toBe(false)
+    expect(authStore.status()).toBe('error')
+    expect(refresh).not.toHaveBeenCalled()
   })
 
-  it('sets unauthenticated status when refresh also fails', async () => {
-    vi.spyOn(apiClient, 'getCurrentUser').mockRejectedValue(new Error('Unauthorized'))
-    vi.spyOn(apiClient, 'refreshToken').mockRejectedValue(new Error('No token'))
-
-    const ok = await authStore.checkAuth()
-    expect(ok).toBe(false)
+  it('clears authentication after the client exhausts renewal', async () => {
+    vi.spyOn(apiClient, 'getCurrentUser').mockRejectedValue(new ApiError(401, 'unauthorized', 'Expired'))
+    expect(await authStore.checkAuth()).toBe(false)
     expect(authStore.status()).toBe('unauthenticated')
     expect(authStore.user()).toBeNull()
+  })
+
+  it('rejects active authors from the owner studio', async () => {
+    vi.spyOn(apiClient, 'getCurrentUser').mockResolvedValue({
+      id: 2, email: 'author@example.test', display_name: 'Author', bio: '',
+      role: 'author', status: 'active', created_at: 0, updated_at: 0,
+    })
+    expect(await authStore.checkAuth()).toBe(false)
+    expect(authStore.status()).toBe('unauthorized')
   })
 
   it('clears state on logout', async () => {

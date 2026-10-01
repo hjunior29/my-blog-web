@@ -80,7 +80,7 @@ export function StudioAccountPage() {
     try {
       const updated = await apiClient.updateProfile({
         display_name: name,
-        bio: bio().trim() || null,
+        bio: bio().trim(),
       })
       authStore.setUser({
         id: updated.id,
@@ -105,7 +105,7 @@ export function StudioAccountPage() {
       setPasswordError(t().currentPasswordRequiredError)
       return
     }
-    if (newPassword().length < 8) {
+    if (Array.from(newPassword()).length < 15 || Array.from(newPassword()).length > 128 || new TextEncoder().encode(newPassword()).length > 512) {
       setPasswordError(t().newPasswordMinLengthError)
       return
     }
@@ -138,7 +138,12 @@ export function StudioAccountPage() {
     setRevokingSessionId(sessionId)
     setSessionsError(null)
     try {
+      const current = sessions().find(session => session.id === sessionId)?.is_current
       await apiClient.revokeSession(sessionId)
+      if (current) {
+        authStore.setUser(null)
+        authStore.setStatus('unauthenticated')
+      }
       setSessions(prev => prev.filter(s => s.id !== sessionId))
       setToastMessage(t().sessionRevokedSuccess)
     } catch (err: unknown) {

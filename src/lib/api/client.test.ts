@@ -75,6 +75,23 @@ describe('apiClient', () => {
     expect(getStoredCsrfToken()).toBe('mock-csrf-token-123')
   })
 
+  it('restores CSRF before a mutation after reload', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ csrf_token: 'restored-token' }), {
+        headers: { 'content-type': 'application/json' },
+      }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+    globalThis.fetch = fetchMock
+
+    await apiClient.deletePost('1', '"2"')
+
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/v1/auth/csrf')
+    expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/v1/admin/posts/1')
+    const headers = new Headers(fetchMock.mock.calls[1]?.[1].headers)
+    expect(headers.get('X-CSRF-Token')).toBe('restored-token')
+    expect(headers.get('If-Match')).toBe('"2"')
+  })
+
   it('mutations attach X-CSRF-Token and Content-Type', async () => {
     setCsrfToken('active-csrf-token')
 
@@ -176,7 +193,7 @@ describe('apiClient', () => {
     expect(res).toEqual(mockTags)
   })
 
-  it('login flow requests CSRF token then posts credentials', async () => {
+  it('login starts without a session or CSRF request', async () => {
     let callCount = 0
     globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
       callCount++
@@ -197,7 +214,7 @@ describe('apiClient', () => {
     })
 
     const loginRes = await apiClient.login('a@b.com', 'secret123')
-    expect(callCount).toBe(2)
+    expect(callCount).toBe(1)
     expect(loginRes.csrf_token).toBe('csrf-logged')
     expect(getStoredCsrfToken()).toBe('csrf-logged')
   })
@@ -275,7 +292,13 @@ describe('apiClient', () => {
     })
   })
 
+  it('adapts the sessions array returned by Rust', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 'session' }]), { status: 200 }))
+    expect(await apiClient.getSessions()).toEqual({ items: [{ id: 'session' }] })
+  })
+
   it('handles 204 No Content for deletePost without JSON parsing error', async () => {
+    setCsrfToken('csrf')
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 204,

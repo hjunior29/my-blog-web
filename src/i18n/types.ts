@@ -101,6 +101,7 @@ export interface Copy {
   readonly postTagsPlaceholder: string
   readonly tabEdit: string
   readonly tabPreview: string
+  readonly savePublishedButton: string
   readonly saveDraftButton: string
   readonly publishButton: string
   readonly unpublishButton: string

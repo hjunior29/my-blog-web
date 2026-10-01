@@ -2,7 +2,7 @@ import { onMount, Show, type ParentComponent } from 'solid-js'
 import { Navigate } from '@solidjs/router'
 import { authStore } from '../lib/auth'
 import { useI18n } from '../i18n'
-import { Skeleton, Alert } from '../design-system'
+import { Skeleton, Alert, Button } from '../design-system'
 
 export const StudioGuard: ParentComponent = (props) => {
   const { t } = useI18n()
@@ -31,8 +31,11 @@ export const StudioGuard: ParentComponent = (props) => {
           when={authStore.status() === 'authenticated'}
           fallback={
             <div class="studio-container">
-              <Alert error title={t().unauthorizedTitle}>
-                <p>{t().unauthorizedDescription}</p>
+              <Alert error title={authStore.status() === 'error' ? t().genericErrorMessage : t().unauthorizedTitle}>
+                <p>{authStore.status() === 'error' ? t().genericErrorMessage : t().unauthorizedDescription}</p>
+                <Show when={authStore.status() === 'error'}>
+                  <Button onClick={() => void authStore.checkAuth()}>{t().retryAction}</Button>
+                </Show>
               </Alert>
             </div>
           }

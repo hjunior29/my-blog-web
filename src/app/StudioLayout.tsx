@@ -1,16 +1,21 @@
-import { type ParentComponent } from 'solid-js'
+import { createSignal, Show, type ParentComponent } from 'solid-js'
 import { A, useNavigate } from '@solidjs/router'
 import { authStore } from '../lib/auth'
 import { useI18n } from '../i18n'
-import { Button } from '../design-system'
+import { Alert, Button } from '../design-system'
 
 export const StudioLayout: ParentComponent = (props) => {
   const { t } = useI18n()
   const navigate = useNavigate()
 
+  const [logoutError, setLogoutError] = createSignal(false)
+
   const handleLogout = async () => {
-    await authStore.logout()
-    navigate('/studio/access', { replace: true })
+    setLogoutError(false)
+    try {
+      await authStore.logout()
+      navigate('/studio/access', { replace: true })
+    } catch { setLogoutError(true) }
   }
 
   return (
@@ -47,6 +52,7 @@ export const StudioLayout: ParentComponent = (props) => {
       </header>
 
       <main class="studio-container">
+        <Show when={logoutError()}><Alert error title={t().genericErrorMessage}>{t().retryAction}</Alert></Show>
         {props.children}
       </main>
     </div>

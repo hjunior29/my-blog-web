@@ -1,5 +1,6 @@
 import { createSignal } from 'solid-js'
-import { apiClient } from '../api/client'
+import { apiClient, setCsrfToken } from '../api/client'
+import { ApiError } from '../api/errors'
 import type { AuthStatus, AuthUser, AuthChannelMessage, LoginCredentials } from './types'
 
 const [user, setUser] = createSignal<AuthUser | null>(null)
@@ -12,6 +13,7 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
     channel = new BroadcastChannel('blog_auth_channel')
     channel.onmessage = (event: MessageEvent<AuthChannelMessage>) => {
       if (event.data?.type === 'logout') {
+        setCsrfToken(null)
         setUser(null)
         setStatus('unauthenticated')
       } else if (event.data?.type === 'login') {
@@ -33,70 +35,44 @@ function broadcast(msg: AuthChannelMessage) {
 export async function checkAuth(): Promise<boolean> {
   try {
     const me = await apiClient.getCurrentUser()
-    const authUser: AuthUser = {
-      id: me.id,
-      email: me.email,
-      display_name: me.display_name,
-      bio: me.bio,
-      role: me.role,
-      status: me.status,
-    }
-
-    if (authUser.status !== 'active') {
-      setUser(authUser)
+    if (me.role !== 'owner' || me.status !== 'active') {
+      setUser(null)
       setStatus('unauthorized')
       return false
     }
-
-    setUser(authUser)
+    await apiClient.getCsrfToken()
+    setUser(me)
     setStatus('authenticated')
     return true
-  } catch {
-    try {
-      await apiClient.refreshToken()
-      const me = await apiClient.getCurrentUser()
-      const authUser: AuthUser = {
-        id: me.id,
-        email: me.email,
-        display_name: me.display_name,
-        bio: me.bio,
-        role: me.role,
-        status: me.status,
-      }
-
-      if (authUser.status !== 'active') {
-        setUser(authUser)
-        setStatus('unauthorized')
-        return false
-      }
-
-      setUser(authUser)
-      setStatus('authenticated')
-      return true
-    } catch {
-      setUser(null)
+  } catch (error) {
+    setUser(null)
+    if (error instanceof ApiError && error.status === 401) {
+      setCsrfToken(null)
       setStatus('unauthenticated')
-      return false
+    } else {
+      setStatus('error')
     }
+    return false
   }
 }
 
 export async function login(credentials: LoginCredentials): Promise<void> {
-  await apiClient.login(credentials.email, credentials.password)
-  const ok = await checkAuth()
-  if (ok) {
-    broadcast({ type: 'login' })
+  const result = await apiClient.login(credentials.email, credentials.password)
+  if (result.user.role !== 'owner' || result.user.status !== 'active') {
+    setUser(null)
+    setStatus('unauthorized')
+    return
   }
+  setUser(result.user)
+  setStatus('authenticated')
+  broadcast({ type: 'login' })
 }
 
 export async function logout(): Promise<void> {
-  try {
-    await apiClient.logout()
-  } finally {
-    setUser(null)
-    setStatus('unauthenticated')
-    broadcast({ type: 'logout' })
-  }
+  await apiClient.logout()
+  setUser(null)
+  setStatus('unauthenticated')
+  broadcast({ type: 'logout' })
 }
 
 export const authStore = {

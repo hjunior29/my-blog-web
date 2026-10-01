@@ -38,6 +38,9 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   const { timeoutMs = DEFAULT_TIMEOUT_MS, skipAuthRefresh = false, etag, headers: customHeaders, ...init } = options
 
   const controller = new AbortController()
+  const abort = () => controller.abort(init.signal?.reason)
+  if (init.signal?.aborted) abort()
+  init.signal?.addEventListener('abort', abort, { once: true })
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
   const headers = new Headers(customHeaders)
@@ -47,6 +50,15 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
 
   const method = (init.method || 'GET').toUpperCase()
   const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+
+  if (isMutation && endpoint !== '/auth/login' && !inMemoryCsrfToken) {
+    try { await apiClient.getCsrfToken() }
+    catch (error) {
+      clearTimeout(timeoutId)
+      init.signal?.removeEventListener('abort', abort)
+      throw error
+    }
+  }
 
   if (isMutation && inMemoryCsrfToken && !headers.has('X-CSRF-Token')) {
     headers.set('X-CSRF-Token', inMemoryCsrfToken)
@@ -70,7 +82,7 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
 
     const responseEtag = response.headers.get('ETag') ?? undefined
 
-    if (response.status === 401 && !skipAuthRefresh && endpoint !== '/auth/refresh' && endpoint !== '/auth/login') {
+    if (response.status === 401 && !endpoint.startsWith('/posts') && endpoint !== '/tags' && !skipAuthRefresh && endpoint !== '/auth/refresh' && endpoint !== '/auth/login') {
       try {
         await singleFlightRefresh()
         return await request<T>(endpoint, { ...options, skipAuthRefresh: true })
@@ -98,11 +110,13 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
     return { data, etag: responseEtag }
   } catch (err: unknown) {
     if (err instanceof DOMException && err.name === 'AbortError') {
+      if (init.signal?.aborted) throw err
       throw new ApiError(408, 'request_timeout', 'Request timed out')
     }
     throw err
   } finally {
     clearTimeout(timeoutId)
+    init.signal?.removeEventListener('abort', abort)
   }
 }
 
@@ -110,8 +124,23 @@ const singleFlightRefresh = async (): Promise<void> => {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       try {
-        await apiClient.getCsrfToken()
-        await apiClient.refreshToken()
+        const renew = async () => {
+          await apiClient.getCsrfToken()
+          await apiClient.refreshToken()
+        }
+        if (typeof navigator !== 'undefined' && navigator.locks) {
+          await navigator.locks.request('blog-session-refresh', async () => {
+            try {
+              await request('/users/me', { skipAuthRefresh: true })
+              await apiClient.getCsrfToken()
+            } catch (error) {
+              if (!(error instanceof ApiError) || error.status !== 401) throw error
+              await renew()
+            }
+          })
+        } else {
+          await renew()
+        }
       } finally {
         refreshPromise = null
       }
@@ -121,20 +150,20 @@ const singleFlightRefresh = async (): Promise<void> => {
 }
 
 export const apiClient = {
-  async getPosts(params?: { limit?: number; offset?: number }): Promise<PostListResponse> {
+  async getPosts(params?: { limit?: number; offset?: number; signal?: AbortSignal }): Promise<PostListResponse> {
     const search = new URLSearchParams()
     if (typeof params?.limit === 'number') search.set('limit', String(params.limit))
     if (typeof params?.offset === 'number') search.set('offset', String(params.offset))
     const query = search.toString() ? `?${search.toString()}` : ''
-    const res = await request<PostListResponse>(`/posts${query}`)
+    const res = await request<PostListResponse>(`/posts${query}`, { signal: params?.signal })
     return res.data
   },
 
-  async searchPosts(q: string, params?: { limit?: number; offset?: number }): Promise<PostListResponse> {
+  async searchPosts(q: string, params?: { limit?: number; offset?: number; signal?: AbortSignal }): Promise<PostListResponse> {
     const search = new URLSearchParams({ q })
     if (typeof params?.limit === 'number') search.set('limit', String(params.limit))
     if (typeof params?.offset === 'number') search.set('offset', String(params.offset))
-    const res = await request<PostListResponse>(`/posts/search?${search.toString()}`)
+    const res = await request<PostListResponse>(`/posts/search?${search.toString()}`, { signal: params?.signal })
     return res.data
   },
 
@@ -155,7 +184,6 @@ export const apiClient = {
   },
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    await apiClient.getCsrfToken()
     const res = await request<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -212,8 +240,8 @@ export const apiClient = {
   },
 
   async getSessions(): Promise<SessionListResponse> {
-    const res = await request<SessionListResponse>('/auth/sessions')
-    return res.data
+    const res = await request<SessionListResponse['items']>('/auth/sessions')
+    return { items: res.data }
   },
 
   async revokeSession(id: string): Promise<void> {

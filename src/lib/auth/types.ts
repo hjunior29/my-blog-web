@@ -1,4 +1,4 @@
-export type AuthStatus = 'unknown' | 'unauthenticated' | 'authenticated' | 'unauthorized'
+export type AuthStatus = 'unknown' | 'unauthenticated' | 'authenticated' | 'unauthorized' | 'error'
 
 export interface AuthUser {
   readonly id: string | number
