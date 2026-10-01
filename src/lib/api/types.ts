@@ -26,6 +26,7 @@ export interface PostResponse {
 }
 
 export interface PostSummaryResponse {
+  readonly version?: number
   readonly id: string | number
   readonly slug: string
   readonly title: string

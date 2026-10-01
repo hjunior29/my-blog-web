@@ -271,8 +271,11 @@ describe('StudioEditorPage', () => {
       post: mockPost,
       etag: '"1"',
     })
+    const updateSpy = vi.spyOn(apiClient, 'updatePost').mockResolvedValue({
+      post: { ...mockPost, content_md: 'Latest content', version: 2 }, etag: '"2"',
+    })
     const publishSpy = vi.spyOn(apiClient, 'publishPost').mockResolvedValue({
-      post: { ...mockPost, status: 'published', version: 2 },
+      post: { ...mockPost, status: 'published', version: 3 },
       etag: '"2"',
     })
 
@@ -290,7 +293,8 @@ describe('StudioEditorPage', () => {
     fireEvent.click(publishBtn)
 
     await waitFor(() => {
-      expect(publishSpy).toHaveBeenCalledWith('post-1', '"1"')
+      expect(updateSpy).toHaveBeenCalled()
+      expect(publishSpy).toHaveBeenCalledWith('post-1', '"2"')
     })
   })
 })

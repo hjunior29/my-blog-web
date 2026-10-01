@@ -52,7 +52,7 @@ export const mapPostSummaryToViewModel = (
     formattedDate: formatDate(effectiveDateMs, locale),
     readingTimeMinutes: estimateReadingTimeMinutes(dto.summary),
     status: dto.status,
-    version: 1,
+    version: dto.version ?? 1,
     authorId: String(dto.author_id),
   }
 }

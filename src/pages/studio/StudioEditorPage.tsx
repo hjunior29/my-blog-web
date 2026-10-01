@@ -1,5 +1,5 @@
 import { A, useNavigate, useParams } from '@solidjs/router'
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup, Show } from 'solid-js'
 import { useI18n } from '../../i18n'
 import { apiClient, ApiError, type PostResponse, type PostStatus } from '../../lib/api'
 import {
@@ -28,6 +28,11 @@ export function StudioEditorPage() {
   const navigate = useNavigate()
 
   const isEditMode = () => Boolean(params.id)
+
+  const [savedId, setSavedId] = createSignal<string>()
+  const currentId = () => params.id || savedId()
+  let previewSequence = 0
+  let loadSequence = 0
 
   const [loading, setLoading] = createSignal(isEditMode())
   const [saving, setSaving] = createSignal(false)
@@ -65,38 +70,52 @@ export function StudioEditorPage() {
   }
 
   const loadPost = async (id: string) => {
+    const sequence = ++loadSequence
     setLoading(true)
     setError(null)
     try {
       const res = await apiClient.getAdminPost(id)
+      if (sequence !== loadSequence) return
       applyPostData(res.post, res.etag)
       void updatePreview(res.post.content_md)
     } catch (err: unknown) {
+      if (sequence !== loadSequence) return
       const msg = err instanceof Error ? err.message : t().genericErrorMessage
       setError(msg)
     } finally {
-      setLoading(false)
+      if (sequence === loadSequence) setLoading(false)
     }
   }
 
-  onMount(() => {
-    if (params.id) {
-      void loadPost(params.id)
+  createEffect(on(() => params.id, id => {
+    if (id) {
+      const createdId = savedId()
+      setSavedId(undefined)
+      if (id !== createdId) void loadPost(id)
+    } else {
+      loadSequence++
+      setSavedId(undefined)
+      setTitle(''); setSummary(''); setContentMd(''); setTags([])
+      setStatus('draft'); setSlug(''); setEtag(undefined); setVersion(undefined)
+      setLoading(false)
     }
-  })
+  }))
 
   const updatePreview = async (markdown: string) => {
+    const sequence = ++previewSequence
     if (!markdown.trim()) {
+      setPreviewLoading(false)
       setPreviewHtml('')
       return
     }
     setPreviewLoading(true)
     try {
       const res = await apiClient.previewPost({ content_md: markdown })
-      setPreviewHtml(res.content_html)
+      if (sequence === previewSequence) setPreviewHtml(res.content_html)
     } catch {
+      if (sequence === previewSequence) setError(t().genericErrorMessage)
     } finally {
-      setPreviewLoading(false)
+      if (sequence === previewSequence) setPreviewLoading(false)
     }
   }
 
@@ -109,6 +128,8 @@ export function StudioEditorPage() {
   })
 
   onCleanup(() => {
+    previewSequence++
+    loadSequence++
     if (previewTimer) clearTimeout(previewTimer)
   })
 
@@ -174,22 +195,24 @@ export function StudioEditorPage() {
     setSaving(true)
     setError(null)
     try {
-      if (!params.id) {
+      if (!currentId()) {
         const res = await apiClient.createPost({
           title: currentTitle,
-          summary: summary().trim() || undefined,
+          summary: summary().trim(),
           content_md: contentMd(),
           tags: tags(),
           status: 'draft',
         })
+        setSavedId(String(res.post.id))
+        applyPostData(res.post, res.etag)
         setToastMessage(t().draftCreatedSuccess)
         navigate(`/studio/posts/${res.post.id}/edit`, { replace: true })
       } else {
         const res = await apiClient.updatePost(
-          params.id,
+          currentId()!,
           {
             title: currentTitle,
-            summary: summary().trim() || undefined,
+            summary: summary().trim(),
             content_md: contentMd(),
             tags: tags(),
             version: version() ?? 1,
@@ -199,6 +222,7 @@ export function StudioEditorPage() {
         applyPostData(res.post, res.etag)
         setToastMessage(t().draftUpdatedSuccess)
       }
+      return true
     } catch (err: unknown) {
       if (!handleConflict(err)) {
         const msg = err instanceof Error ? err.message : t().genericErrorMessage
@@ -210,20 +234,19 @@ export function StudioEditorPage() {
   }
 
   const handlePublishToggle = async () => {
-    if (!params.id) {
-      await handleSaveDraft()
-      return
-    }
-
+    const wasPublished = status() === 'published'
     setPublishing(true)
     setError(null)
     try {
-      if (status() === 'published') {
-        const res = await apiClient.unpublishPost(params.id, etag())
-        applyPostData(res.post, res.etag)
+      if (wasPublished) {
+        const res = await apiClient.unpublishPost(currentId()!, etag())
+        setStatus(res.post.status)
+        setVersion(res.post.version)
+        setEtag(res.etag)
         setToastMessage(t().articleUnpublishedSuccess)
       } else {
-        const res = await apiClient.publishPost(params.id, etag())
+        if (!await handleSaveDraft()) return
+        const res = await apiClient.publishPost(currentId()!, etag())
         applyPostData(res.post, res.etag)
         setToastMessage(t().articlePublishedSuccess)
       }
@@ -284,16 +307,16 @@ export function StudioEditorPage() {
           <Button
             variant="secondary"
             busy={saving()}
-            disabled={saving() || publishing()}
+            disabled={loading() || saving() || publishing()}
             onClick={handleSaveDraft}
           >
-            {saving() ? t().savingButton : t().saveDraftButton}
+            {saving() ? t().savingButton : status() === 'published' ? t().savePublishedButton : t().saveDraftButton}
           </Button>
 
           <Button
             variant="primary"
             busy={publishing()}
-            disabled={saving() || publishing()}
+            disabled={loading() || saving() || publishing()}
             onClick={handlePublishToggle}
           >
             {status() === 'published' ? t().unpublishButton : t().publishButton}

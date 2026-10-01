@@ -24,9 +24,16 @@ export function PostsPage() {
   const [error, setError] = createSignal<string | null>(null)
   const [searchInput, setSearchInput] = createSignal(query())
 
+  let sequence = 0
+  let activeRequest: AbortController | undefined
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
 
   const fetchPosts = async () => {
+    const requestId = ++sequence
+    activeRequest?.abort()
+    activeRequest = new AbortController()
+    const signal = activeRequest.signal
+    const language = locale()
     setLoading(true)
     setError(null)
     const q = query().trim()
@@ -35,18 +42,20 @@ export function PostsPage() {
 
     try {
       const res = q
-        ? await apiClient.searchPosts(q, { limit: PAGE_SIZE, offset })
-        : await apiClient.getPosts({ limit: PAGE_SIZE, offset })
+        ? await apiClient.searchPosts(q, { limit: PAGE_SIZE, offset, signal })
+        : await apiClient.getPosts({ limit: PAGE_SIZE, offset, signal })
 
+      if (requestId !== sequence) return
       const mapped = res.items.map((dto) =>
-        mapPostSummaryToViewModel(dto, locale() === 'pt' ? 'pt-BR' : 'en-US')
+        mapPostSummaryToViewModel(dto, language === 'pt' ? 'pt-BR' : 'en-US')
       )
       setPosts(mapped)
       setTotal(res.total)
     } catch {
+      if (requestId !== sequence || signal.aborted) return
       setError(t().genericErrorMessage)
     } finally {
-      setLoading(false)
+      if (requestId === sequence) setLoading(false)
     }
   }
 
@@ -83,6 +92,8 @@ export function PostsPage() {
   }
 
   onCleanup(() => {
+    sequence++
+    activeRequest?.abort()
     clearTimeout(debounceTimer)
   })
 

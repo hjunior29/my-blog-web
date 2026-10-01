@@ -63,7 +63,7 @@ export function StudioPostsPage() {
     setDeleteError(null)
     try {
       const postId = String(target.id)
-      const { etag } = await apiClient.getAdminPost(postId)
+      const etag = target.version === undefined ? (await apiClient.getAdminPost(postId)).etag : `"${target.version}"`
       await apiClient.deletePost(postId, etag)
       setToastMessage(t().postDeletedSuccess)
       setPostToDelete(null)
