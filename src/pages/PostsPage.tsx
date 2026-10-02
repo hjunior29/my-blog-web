@@ -1,16 +1,18 @@
 import { createSignal, createEffect, onCleanup, Show } from 'solid-js'
-import { useSearchParams } from '@solidjs/router'
+import { useSearchParams, useNavigate } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { apiClient } from '../lib/api/client.ts'
 import { mapPostSummaryToViewModel } from '../lib/api/mappers.ts'
 import type { PostViewModel } from '../lib/api/types.ts'
-import { PostGrid, Alert, EmptyState, Skeleton, Button, Pagination, SearchField } from '../design-system'
+import { PostGrid, Alert, EmptyState, Skeleton, Button, Pagination, SearchField, createBookTransition } from '../design-system'
 
 const PAGE_SIZE = 12
 
 export function PostsPage() {
   const { t, locale } = useI18n()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { startTransition, abortTransition } = createBookTransition()
 
   const query = () => (searchParams.q as string) ?? ''
   const currentPage = () => {
@@ -91,9 +93,19 @@ export function PostsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleOpenPost = (trigger: HTMLElement, index: number) => {
+    const post = posts()[index]
+    if (!post) return
+    startTransition(trigger, post.title, () => {
+      navigate(`/posts/${post.slug}`)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+  }
+
   onCleanup(() => {
     sequence++
     activeRequest?.abort()
+    abortTransition()
     clearTimeout(debounceTimer)
   })
 
@@ -159,6 +171,7 @@ export function PostsPage() {
                 readingTime: `${post.readingTimeMinutes} min`,
                 slug: post.slug,
               }))}
+              onOpen={handleOpenPost}
             />
 
             <Show when={total() > PAGE_SIZE}>

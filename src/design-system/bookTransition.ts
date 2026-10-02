@@ -1,11 +1,27 @@
 import './book-transition.css'
 
-export async function transitionBookToArticle(source: HTMLElement, reveal: () => void, signal: AbortSignal, label: string) {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !source.animate) {
+export async function transitionBookToArticle(element: HTMLElement, reveal: () => void, signal: AbortSignal, label: string) {
+  const source = (
+    element.classList.contains('ds-book')
+      ? element
+      : element.closest('.post-book-stage')?.querySelector<HTMLElement>('.ds-book')
+        ?? element.querySelector<HTMLElement>('.ds-book')
+        ?? element
+  ) as HTMLElement
+
+  if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    reveal()
+    return
+  }
+  if (!source || !source.animate || !source.querySelector?.('.ds-book-rotate')) {
     reveal()
     return
   }
   const bounds = source.getBoundingClientRect()
+  if (bounds.width === 0 || bounds.height === 0) {
+    reveal()
+    return
+  }
   const originalVisibility = source.style.visibility
   const overlay = document.createElement('dialog')
   overlay.className = 'book-transition-overlay'
@@ -17,16 +33,21 @@ export async function transitionBookToArticle(source: HTMLElement, reveal: () =>
   const copy = source.cloneNode(true) as HTMLElement
   copy.classList.add('book-transition-copy')
   copy.setAttribute('aria-hidden', 'true')
-  copy.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'))
+  copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'))
   const computed = getComputedStyle(source)
   for (const token of ['--book-color', '--book-cover', '--book-text', '--book-back']) copy.style.setProperty(token, computed.getPropertyValue(token))
   const originalTitle = source.querySelector('.ds-book-title')
   const title = copy.querySelector<HTMLElement>('.ds-book-title')
   if (title && originalTitle) title.style.fontFamily = getComputedStyle(originalTitle).fontFamily
-  const turn = copy.querySelector<HTMLElement>('.ds-book-rotate')!
-  const initialTurn = getComputedStyle(source.querySelector('.ds-book-rotate')!).transform
+  const turn = copy.querySelector<HTMLElement>('.ds-book-rotate')
+  const sourceTurn = source.querySelector<HTMLElement>('.ds-book-rotate')
+  const cover = copy.querySelector<HTMLElement>('.ds-book-cover')
+  if (!turn || !sourceTurn || !cover) {
+    reveal()
+    return
+  }
+  const initialTurn = getComputedStyle(sourceTurn).transform
   turn.style.transform = initialTurn
-  const cover = copy.querySelector<HTMLElement>('.ds-book-cover')!
   const hinge = document.createElement('div')
   hinge.className = 'book-transition-hinge'
   const inside = document.createElement('div')
@@ -68,7 +89,8 @@ export async function transitionBookToArticle(source: HTMLElement, reveal: () =>
   const zoomed = `translate3d(${centerX - bounds.width * zoom / 2}px, ${centerY}px, 0) scale(${zoom})`
   const previousOverflow = document.documentElement.style.overflow
   try {
-    overlay.showModal()
+    if (typeof overlay.showModal === 'function') overlay.showModal()
+    else overlay.setAttribute('open', '')
     document.documentElement.style.overflow = 'hidden'
     source.style.visibility = 'hidden'
     overlay.dataset.phase = 'rotate'
@@ -99,4 +121,18 @@ export async function transitionBookToArticle(source: HTMLElement, reveal: () =>
     source.style.visibility = originalVisibility
     document.documentElement.style.overflow = previousOverflow
   }
+}
+
+export function createBookTransition() {
+  let controller: AbortController | undefined
+  const startTransition = (trigger: HTMLElement, label: string, reveal: () => void) => {
+    controller?.abort()
+    controller = new AbortController()
+    return transitionBookToArticle(trigger, reveal, controller.signal, label)
+  }
+  const abortTransition = () => {
+    controller?.abort()
+    controller = undefined
+  }
+  return { startTransition, abortTransition }
 }

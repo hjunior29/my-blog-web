@@ -1,13 +1,15 @@
-import { createSignal, onMount, For, Show } from 'solid-js'
-import { A } from '@solidjs/router'
+import { createSignal, onMount, onCleanup, For, Show } from 'solid-js'
+import { A, useNavigate } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { apiClient } from '../lib/api/client.ts'
 import { mapPostSummaryToViewModel } from '../lib/api/mappers.ts'
 import type { PostViewModel, TagWithCountDto } from '../lib/api/types.ts'
-import { PostGrid, Author, Arrow, Alert, EmptyState, Skeleton, Button, Badge, EditorialScene } from '../design-system'
+import { PostGrid, Author, Arrow, Alert, EmptyState, Skeleton, Button, Badge, EditorialScene, createBookTransition } from '../design-system'
 
 export function HomePage() {
   const { t, locale } = useI18n()
+  const navigate = useNavigate()
+  const { startTransition, abortTransition } = createBookTransition()
 
   const [posts, setPosts] = createSignal<PostViewModel[]>([])
   const [tags, setTags] = createSignal<readonly TagWithCountDto[]>([])
@@ -34,6 +36,19 @@ export function HomePage() {
 
   onMount(() => {
     loadData()
+  })
+
+  const handleOpenPost = (trigger: HTMLElement, index: number) => {
+    const post = posts()[index]
+    if (!post) return
+    startTransition(trigger, post.title, () => {
+      navigate(`/posts/${post.slug}`)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+  }
+
+  onCleanup(() => {
+    abortTransition()
   })
 
   return (
@@ -98,6 +113,7 @@ export function HomePage() {
                   readingTime: `${post.readingTimeMinutes} min`,
                   slug: post.slug,
                 }))}
+                onOpen={handleOpenPost}
               />
             </Show>
           </Show>

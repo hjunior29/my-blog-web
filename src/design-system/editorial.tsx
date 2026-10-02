@@ -31,6 +31,15 @@ export function PostCard(props: PostCardProps) {
     }
   }
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      if (props.onOpen) {
+        e.preventDefault()
+        props.onOpen(e.currentTarget as HTMLElement)
+      }
+    }
+  }
+
   return (
     <article class="post-card post-book-card">
       <div class="post-book-stage">
@@ -48,6 +57,7 @@ export function PostCard(props: PostCardProps) {
             class="post-book-action"
             aria-label={props.title}
             onClick={handleClick}
+            onKeyDown={handleKeyDown}
           />
         ) : (
           <button
