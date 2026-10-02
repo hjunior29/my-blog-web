@@ -2,7 +2,6 @@ import { createSignal, onMount, type ParentComponent } from 'solid-js'
 import { A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { Icon } from '../design-system/Icon'
-import { MotionControl } from '../design-system/MotionControl'
 
 export const PublicLayout: ParentComponent = (props) => {
   const { locale, toggleLocale, t } = useI18n()
@@ -51,11 +50,6 @@ export const PublicLayout: ParentComponent = (props) => {
           </nav>
 
           <div class="public-header-actions">
-            <MotionControl
-              pauseLabel={t().pauseAnimations}
-              resumeLabel={t().resumeAnimations}
-            />
-
             <button
               type="button"
               class="locale-button"
