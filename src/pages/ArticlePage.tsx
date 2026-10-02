@@ -1,8 +1,7 @@
 import { createSignal, createEffect, Show } from 'solid-js'
 import { useParams, A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
-import { apiClient } from '../lib/api/client.ts'
-import { mapPostToViewModel } from '../lib/api/mappers.ts'
+import { getCachedPost, prefetchPost } from '../lib/api/postsCache.ts'
 import type { PostViewModel } from '../lib/api/types.ts'
 import { ArticleProse, Alert, Badge, Button, Icon, Skeleton, Toast } from '../design-system'
 
@@ -10,18 +9,30 @@ export function ArticlePage() {
   const { t, locale } = useI18n()
   const params = useParams()
 
-  const [post, setPost] = createSignal<PostViewModel | null>(null)
-  const [loading, setLoading] = createSignal(true)
+  const currentLocale = () => (locale() === 'pt' ? 'pt-BR' : 'en-US')
+  const initialCached = params.slug ? getCachedPost(params.slug, currentLocale()) : null
+
+  const [post, setPost] = createSignal<PostViewModel | null>(initialCached)
+  const [loading, setLoading] = createSignal(!initialCached)
   const [errorStatus, setErrorStatus] = createSignal<number | null>(null)
   const [toastMessage, setToastMessage] = createSignal('')
 
   const fetchPost = async () => {
     if (!params.slug) return
+    const activeLocale = currentLocale()
+    const cached = getCachedPost(params.slug, activeLocale)
+    if (cached) {
+      setPost(cached)
+      setLoading(false)
+      if (typeof document !== 'undefined') {
+        document.title = `${cached.title} / ${t().brandName}`
+      }
+      return
+    }
     setLoading(true)
     setErrorStatus(null)
     try {
-      const res = await apiClient.getPostBySlug(params.slug)
-      const vm = mapPostToViewModel(res, undefined, locale() === 'pt' ? 'pt-BR' : 'en-US')
+      const vm = await prefetchPost(params.slug, activeLocale)
       setPost(vm)
       if (typeof document !== 'undefined') {
         document.title = `${vm.title} / ${t().brandName}`

@@ -1,6 +1,6 @@
 import './book-transition.css'
 
-export async function transitionBookToArticle(element: HTMLElement, reveal: () => void, signal: AbortSignal, label: string) {
+export async function transitionBookToArticle(element: HTMLElement, reveal: () => void | Promise<void>, signal: AbortSignal, label: string) {
   const source = (
     element.classList.contains('ds-book')
       ? element
@@ -10,16 +10,16 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
   ) as HTMLElement
 
   if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    reveal()
+    await reveal()
     return
   }
   if (!source || !source.animate || !source.querySelector?.('.ds-book-rotate')) {
-    reveal()
+    await reveal()
     return
   }
   const bounds = source.getBoundingClientRect()
   if (bounds.width === 0 || bounds.height === 0) {
-    reveal()
+    await reveal()
     return
   }
   const originalVisibility = source.style.visibility
@@ -108,11 +108,11 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
       ...Array.from(copy.querySelectorAll('.book-transition-text'), text => animate(text, [{ opacity: 1 }, { opacity: 0 }], 240)),
     ])
     if (signal.aborted || !overlay.open) return
-    reveal()
-    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
-    await animate(overlay, [{ opacity: 1 }, { opacity: 0 }], 90, 'ease-out')
+    await reveal()
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+    await animate(overlay, [{ opacity: 1 }, { opacity: 0 }], 130, 'ease-out')
   } catch {
-    if (!signal.aborted && overlay.open) reveal()
+    if (!signal.aborted && overlay.open) await reveal()
   } finally {
     signal.removeEventListener('abort', abort)
     overlay.removeEventListener('close', abort)
@@ -125,14 +125,31 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
 
 export function createBookTransition() {
   let controller: AbortController | undefined
-  const startTransition = (trigger: HTMLElement, label: string, reveal: () => void) => {
+  let isNavigating = false
+
+  const startTransition = async (
+    trigger: HTMLElement,
+    label: string,
+    reveal: () => void | Promise<void>
+  ) => {
     controller?.abort()
     controller = new AbortController()
-    return transitionBookToArticle(trigger, reveal, controller.signal, label)
+    isNavigating = false
+
+    const wrappedReveal = async () => {
+      isNavigating = true
+      await reveal()
+    }
+
+    return transitionBookToArticle(trigger, wrappedReveal, controller.signal, label)
   }
+
   const abortTransition = () => {
-    controller?.abort()
-    controller = undefined
+    if (!isNavigating) {
+      controller?.abort()
+      controller = undefined
+    }
   }
+
   return { startTransition, abortTransition }
 }

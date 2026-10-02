@@ -18,6 +18,7 @@ export interface PostCardProps {
   readonly coverImage?: string
   readonly coverPosition?: string
   readonly onOpen?: (trigger: HTMLElement) => void
+  readonly onHover?: () => void
 }
 
 export function PostCard(props: PostCardProps) {
@@ -58,6 +59,8 @@ export function PostCard(props: PostCardProps) {
             aria-label={props.title}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
+            onMouseEnter={props.onHover}
+            onFocus={props.onHover}
           />
         ) : (
           <button
@@ -65,6 +68,8 @@ export function PostCard(props: PostCardProps) {
             class="post-book-action"
             aria-label={props.title}
             onClick={(event) => props.onOpen?.(event.currentTarget)}
+            onMouseEnter={props.onHover}
+            onFocus={props.onHover}
           />
         )}
       </div>

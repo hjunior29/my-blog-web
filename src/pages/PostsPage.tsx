@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { apiClient } from '../lib/api/client.ts'
 import { mapPostSummaryToViewModel } from '../lib/api/mappers.ts'
+import { prefetchPost } from '../lib/api/postsCache.ts'
 import type { PostViewModel } from '../lib/api/types.ts'
 import { PostGrid, Alert, EmptyState, Skeleton, Button, Pagination, SearchField, createBookTransition } from '../design-system'
 
@@ -96,10 +97,18 @@ export function PostsPage() {
   const handleOpenPost = (trigger: HTMLElement, index: number) => {
     const post = posts()[index]
     if (!post) return
-    startTransition(trigger, post.title, () => {
+    const currentLocale = locale() === 'pt' ? 'pt-BR' : 'en-US'
+    const postPromise = prefetchPost(post.slug, currentLocale)
+    startTransition(trigger, post.title, async () => {
+      await postPromise.catch(() => null)
       navigate(`/posts/${post.slug}`)
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
+  }
+
+  const handleHoverPost = (index: number) => {
+    const post = posts()[index]
+    if (post) prefetchPost(post.slug, locale() === 'pt' ? 'pt-BR' : 'en-US')
   }
 
   onCleanup(() => {
@@ -172,6 +181,7 @@ export function PostsPage() {
                 slug: post.slug,
               }))}
               onOpen={handleOpenPost}
+              onHover={handleHoverPost}
             />
 
             <Show when={total() > PAGE_SIZE}>

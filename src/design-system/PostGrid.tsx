@@ -7,6 +7,7 @@ export type PostPreview = PostCardProps
 export interface PostGridProps<T = PostCardProps> {
   readonly posts: readonly T[]
   readonly onOpen?: (trigger: HTMLElement, index: number) => void
+  readonly onHover?: (index: number) => void
   readonly renderItem?: (post: T, index: number) => JSX.Element
 }
 
@@ -22,6 +23,7 @@ export function PostGrid<T extends PostCardProps = PostCardProps>(props: PostGri
             <PostCard
               {...post}
               onOpen={props.onOpen ? (trigger) => props.onOpen?.(trigger, index()) : post.onOpen}
+              onHover={props.onHover ? () => props.onHover?.(index()) : post.onHover}
             />
           )
         }}
