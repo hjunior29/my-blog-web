@@ -179,6 +179,8 @@ export function PostsPage() {
                 date: post.formattedDate,
                 readingTime: `${post.readingTimeMinutes} min`,
                 slug: post.slug,
+                bookColor: post.bookColor,
+                coverImage: post.coverImage ?? undefined,
               }))}
               onOpen={handleOpenPost}
               onHover={handleHoverPost}

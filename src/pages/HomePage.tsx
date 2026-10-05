@@ -5,7 +5,8 @@ import { apiClient } from '../lib/api/client.ts'
 import { mapPostSummaryToViewModel } from '../lib/api/mappers.ts'
 import { prefetchPost } from '../lib/api/postsCache.ts'
 import type { PostViewModel, TagWithCountDto } from '../lib/api/types.ts'
-import { PostGrid, Author, Arrow, Alert, EmptyState, Skeleton, Button, Badge, EditorialScene, createBookTransition } from '../design-system'
+import { PostGrid, Arrow, Alert, EmptyState, Skeleton, Button, Badge, Icon, PaperZoomScene, LetterScene, createBookTransition } from '../design-system'
+import './home.css'
 
 export function HomePage() {
   const { t, locale } = useI18n()
@@ -62,110 +63,176 @@ export function HomePage() {
 
   return (
     <div class="home-page">
-      <section class="home-hero">
-        <div class="home-hero-content">
-          <span class="eyebrow">{t().brandName}</span>
-          <h1 class="home-hero-title">{t().heroTitle}</h1>
-          <p class="home-hero-subtitle">{t().heroSubtitle}</p>
-          <div class="home-hero-actions">
-            <A href="/posts" class="button primary large">
-              {t().heroCta}
+      <PaperZoomScene
+        class="home-notebook-scene"
+        label={t().notebookLabel}
+        intro={
+          <section class="home-hero" aria-labelledby="home-hero-title">
+            <div class="home-hero-inner">
+              <h1 id="home-hero-title" class="home-hero-title">{t().heroTitle}</h1>
+              <div class="home-hero-footer">
+                <p class="home-hero-subtitle">{t().heroSubtitle}</p>
+                <A href="/posts" class="button primary large">
+                  {t().heroCta}
+                  <Arrow />
+                </A>
+              </div>
+            </div>
+            <div class="home-hero-cue" aria-hidden="true">
+              <span>{t().heroScrollCue}</span>
+              <i />
+            </div>
+          </section>
+        }
+      >
+        <div class="home-notebook">
+          <span class="eyebrow home-notebook-kicker">{t().notebookKicker}</span>
+          <h2 class="home-notebook-title">{t().notebookTitle}</h2>
+          <p class="home-notebook-lead">{t().notebookLead}</p>
+          <section class="home-notebook-block" aria-labelledby="home-notebook-topics">
+            <h3 id="home-notebook-topics" class="home-notebook-label">{t().notebookTopicsTitle}</h3>
+            <ol class="home-notebook-topics">
+              <For each={t().notebookTopics}>
+                {(entry, index) => (
+                  <li>
+                    <span class="section-number">{String(index() + 1).padStart(2, '0')}</span>
+                    <h4>{entry.title}</h4>
+                    <p>{entry.body}</p>
+                  </li>
+                )}
+              </For>
+            </ol>
+          </section>
+          <section class="home-notebook-block" aria-labelledby="home-notebook-stack">
+            <h3 id="home-notebook-stack" class="home-notebook-label">{t().notebookStackTitle}</h3>
+            <p class="home-notebook-text">{t().notebookStack}</p>
+          </section>
+          <section class="home-notebook-block" aria-labelledby="home-notebook-rules">
+            <h3 id="home-notebook-rules" class="home-notebook-label">{t().notebookRulesTitle}</h3>
+            <ul class="home-notebook-rules">
+              <For each={t().notebookRules}>
+                {(rule) => (
+                  <li>
+                    <Icon name="asterisk" size={16} />
+                    <span>{rule}</span>
+                  </li>
+                )}
+              </For>
+            </ul>
+          </section>
+        </div>
+      </PaperZoomScene>
+
+      <div class="home-flow">
+        <section class="home-recent-section">
+          <div class="section-header-row">
+            <div class="home-section-heading">
+              <h2>{t().recentArticlesTitle}</h2>
+              <p class="section-description">{t().recentArticlesSubtitle}</p>
+            </div>
+            <A href="/posts" class="text-link">
+              {t().allArticlesLink}
               <Arrow />
             </A>
           </div>
-        </div>
 
-        <div class="home-hero-visual" aria-hidden="true">
-          <EditorialScene variant="hero" motionLabel={t().pauseAnimations} />
-        </div>
-      </section>
-
-      <section class="home-recent-section">
-        <div class="section-header-row">
-          <div>
-            <h2>{t().recentArticlesTitle}</h2>
-          </div>
-          <A href="/posts" class="text-link">
-            {t().allArticlesLink}
-            <Arrow />
-          </A>
-        </div>
-
-        <Show when={!loading()} fallback={
-          <div class="post-grid">
-            <Skeleton label={t().loadingMessage} />
-            <Skeleton label={t().loadingMessage} />
-            <Skeleton label={t().loadingMessage} />
-          </div>
-        }>
-          <Show when={!error()} fallback={
-            <Alert title={t().error} error>
-              <p>{error()}</p>
-              <Button variant="ghost" onClick={loadData}>
-                {t().retryAction}
-              </Button>
-            </Alert>
+          <Show when={!loading()} fallback={
+            <div class="post-grid">
+              <Skeleton label={t().loadingMessage} />
+              <Skeleton label={t().loadingMessage} />
+              <Skeleton label={t().loadingMessage} />
+            </div>
           }>
-            <Show when={posts().length > 0} fallback={
-              <EmptyState title={t().empty} description={t().emptyStateMessage}>
-                <A href="/about" class="button secondary">
-                  {t().aboutReadMore}
-                </A>
-              </EmptyState>
+            <Show when={!error()} fallback={
+              <Alert title={t().error} error>
+                <p>{error()}</p>
+                <Button variant="ghost" onClick={loadData}>
+                  {t().retryAction}
+                </Button>
+              </Alert>
             }>
-              <PostGrid
-                posts={posts().map((post) => ({
-                  title: post.title,
-                  description: post.description,
-                  category: post.category,
-                  date: post.formattedDate,
-                  readingTime: `${post.readingTimeMinutes} min`,
-                  slug: post.slug,
-                }))}
-                onOpen={handleOpenPost}
-                onHover={handleHoverPost}
-              />
+              <Show when={posts().length > 0} fallback={
+                <EmptyState title={t().empty} description={t().emptyStateMessage}>
+                  <A href="/about" class="button secondary">
+                    {t().aboutReadMore}
+                  </A>
+                </EmptyState>
+              }>
+                <PostGrid
+                  posts={posts().map((post) => ({
+                    title: post.title,
+                    description: post.description,
+                    category: post.category,
+                    date: post.formattedDate,
+                    readingTime: `${post.readingTimeMinutes} min`,
+                    slug: post.slug,
+                    bookColor: post.bookColor,
+                    coverImage: post.coverImage ?? undefined,
+                  }))}
+                  onOpen={handleOpenPost}
+                  onHover={handleHoverPost}
+                />
+              </Show>
             </Show>
           </Show>
-        </Show>
-      </section>
-
-      <Show when={tags().length > 0}>
-        <section class="home-topics-section">
-          <h2>{t().topicsTitle}</h2>
-          <p class="section-description">{t().topicsSubtitle}</p>
-          <div class="topics-cloud">
-            <For each={tags()}>
-              {(tag) => (
-                <A href={`/posts?q=${encodeURIComponent(tag.name)}`} class="topic-tag-item">
-                  <Badge accent>{tag.name}</Badge>
-                  <span class="topic-count">{tag.post_count}</span>
-                </A>
-              )}
-            </For>
-          </div>
         </section>
-      </Show>
 
-      <section class="home-about-section">
-        <div class="home-about-card">
-          <Author name={t().brandName} description={t().aboutBriefBody} />
-          <div class="home-about-action">
-            <A href="/about" class="text-link">
-              {t().aboutReadMore}
-              <Arrow />
-            </A>
-          </div>
-        </div>
-      </section>
+        <Show when={tags().length > 0}>
+          <section class="home-topics-section">
+            <h2>{t().topicsTitle}</h2>
+            <p class="section-description">{t().topicsSubtitle}</p>
+            <div class="topics-cloud">
+              <For each={tags()}>
+                {(tag) => (
+                  <A href={`/posts?q=${encodeURIComponent(tag.name)}`} class="topic-tag-item">
+                    <Badge accent>{tag.name}</Badge>
+                    <span class="topic-count">{tag.post_count}</span>
+                  </A>
+                )}
+              </For>
+            </div>
+          </section>
+        </Show>
+      </div>
 
-      <section class="home-interlude-section">
-        <EditorialScene
-          variant="workshop"
-          workshopTitle={t().closingTitle}
-          workshopText={t().closingSubtitle}
-        />
-      </section>
+      <LetterScene
+        class="home-letter-scene"
+        label={t().letterLabel}
+        recipientLabel={t().letterRecipientLabel}
+        recipient={t().letterRecipient}
+        sender={t().letterSender}
+        postmark={t().letterPostmark}
+        foldedLabel={t().letterFoldedLabel}
+        heading={
+          <>
+            <span class="eyebrow home-letter-eyebrow">{t().letterEyebrow}</span>
+            <h2 class="home-letter-heading">{t().letterHeading}</h2>
+          </>
+        }
+        opening={
+          <>
+            <div class="home-letter-head">
+              <span class="home-letter-mark" aria-hidden="true">h.</span>
+              <span class="eyebrow">{t().letterLabel}</span>
+            </div>
+            <p class="home-letter-greeting">{t().letterGreeting}</p>
+          </>
+        }
+        body={<For each={t().letterBody}>{(paragraph) => <p class="home-letter-paragraph">{paragraph}</p>}</For>}
+        closing={
+          <>
+            <p class="home-letter-closing">{t().letterClosing}</p>
+            <p class="home-letter-signature">{t().letterSignature}</p>
+            <div class="home-letter-footer">
+              <A href="/about" class="text-link">
+                {t().aboutReadMore}
+                <Arrow />
+              </A>
+              <p class="home-letter-postscript">{t().letterPostscript}</p>
+            </div>
+          </>
+        }
+      />
     </div>
   )
 }

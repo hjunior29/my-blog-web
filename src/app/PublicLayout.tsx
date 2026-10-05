@@ -1,4 +1,4 @@
-import { createSignal, onMount, type ParentComponent } from 'solid-js'
+import { createSignal, onCleanup, onMount, type ParentComponent } from 'solid-js'
 import { A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { Icon } from '../design-system/Icon'
@@ -14,9 +14,16 @@ export const PublicLayout: ParentComponent = (props) => {
   }
 
   const [dark, setDark] = createSignal(getInitialTheme())
+  let header: HTMLElement | undefined
 
   onMount(() => {
     document.documentElement.dataset.theme = dark() ? 'dark' : 'light'
+    if (!header || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--public-header-height', `${header!.offsetHeight}px`)
+    })
+    observer.observe(header)
+    onCleanup(() => observer.disconnect())
   })
 
   const handleToggleTheme = () => {
@@ -34,7 +41,7 @@ export const PublicLayout: ParentComponent = (props) => {
         {t().skipToContent}
       </a>
 
-      <header class="public-header">
+      <header ref={header} class="public-header">
         <div class="public-header-inner">
           <A href="/" class="public-wordmark" aria-label={t().brandName}>
             helder<span class="accent-text">.</span>
@@ -83,10 +90,6 @@ export const PublicLayout: ParentComponent = (props) => {
           <p class="public-footer-text">
             © {new Date().getFullYear()} {t().brandName} · {t().crafted}
           </p>
-          <A href="#main" class="text-link">
-            {t().top}
-            <Icon name="arrowUp" size={14} />
-          </A>
         </div>
       </footer>
     </div>

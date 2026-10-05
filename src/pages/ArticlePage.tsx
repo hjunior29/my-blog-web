@@ -77,12 +77,6 @@ export function ArticlePage() {
     }
   }
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print()
-    }
-  }
-
   return (
     <div class="article-reader-container">
       <Show when={!loading()} fallback={
@@ -115,14 +109,29 @@ export function ArticlePage() {
           </Show>
         }>
           <article class="article-reader">
-            <nav class="article-back-nav" aria-label="Secondary navigation">
-              <A href="/posts" class="text-link">
-                <Icon name="arrowLeft" size={16} />
-                {t().backToArticles}
+            <nav class="article-top-nav" aria-label="Article navigation">
+              <A href="/posts" class="article-back-btn" title={t().backToArticles} aria-label={t().backToArticles}>
+                <Icon name="arrowLeft" size={18} />
               </A>
+              <Button variant="ghost" size="small" onClick={handleShare} aria-label={t().shareArticle} class="article-share-btn">
+                <Icon name="share" size={15} />
+                <span>{t().shareArticle}</span>
+              </Button>
             </nav>
 
             <header class="article-header">
+              <Show when={post()!.coverImage}>
+                <div class="article-hero-cover-wrapper">
+                  <img
+                    src={post()!.coverImage!}
+                    alt={post()!.title}
+                    class="article-hero-cover-image"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </div>
+              </Show>
+
               <div class="article-category">
                 <Badge accent>{post()!.category}</Badge>
               </div>
@@ -140,30 +149,11 @@ export function ArticlePage() {
                 <span class="meta-dot" aria-hidden="true">·</span>
                 <span class="article-reading-time">{post()!.readingTimeMinutes} min</span>
               </div>
-
-              <div class="article-actions-bar">
-                <Button variant="ghost" size="small" onClick={handleShare} aria-label={t().shareArticle}>
-                  <Icon name="share" size={14} />
-                  <span>{t().shareArticle}</span>
-                </Button>
-
-                <Button variant="ghost" size="small" onClick={handlePrint} aria-label={t().printArticle}>
-                  <Icon name="print" size={14} />
-                  <span>{t().printArticle}</span>
-                </Button>
-              </div>
             </header>
 
             <div class="article-body">
               <ArticleProse html={post()!.contentHtml ?? ''} />
             </div>
-
-            <footer class="article-footer-nav">
-              <A href="/posts" class="button secondary">
-                <Icon name="arrowLeft" size={16} />
-                {t().backToArticles}
-              </A>
-            </footer>
           </article>
         </Show>
       </Show>
