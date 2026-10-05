@@ -23,6 +23,7 @@ Use `--paper` for the page, `--surface` to group content, `--raised` for inputs,
 | transitionBookToArticle | Native Book opening and zoom transition with cancellation and reduced-motion fallback. See [BOOK.md](./BOOK.md). |
 | transitionArticleToBook | Reverse of the opening: the page shrinks into the open Book, the cover closes, and the Book slides back to its shelf slot. `bookReturnHref(slug, shelfPath)` returns the remembered shelf page. See [BOOK.md](./BOOK.md). |
 | BookmarkRibbon | Decorative terracotta reading-progress ribbon. Pass `target` to follow the reading position of an element, or `progress` (0–1) for a fixed specimen. Position it with `--ribbon-top`, `--ribbon-right`, `--ribbon-width`, `--ribbon-stub`, and `--ribbon-gap`. |
+| turnThemePage | Theme switch as a notebook page turn, using the native View Transitions API. `turnThemePage(trigger, apply)` folds the current page from the viewport corner nearest the trigger, reveals the new theme underneath, and shows the turned flap as the back of the old sheet with a soft shadow on the fold. `apply` must update the theme synchronously. Without View Transitions support, or with reduced motion, `apply` runs instantly. |
 | Button | Native button attributes; primary, secondary, ghost variants; small/default/large sizes; busy and disabled states. Provide a localized accessible name for icon-only buttons. |
 | Arrow | Decorative direction indicator; optional diagonal direction. |
 | Badge | Neutral or accent metadata. Not interactive. |

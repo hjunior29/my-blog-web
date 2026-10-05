@@ -2,6 +2,7 @@ import { createSignal, onCleanup, onMount, type ParentComponent } from 'solid-js
 import { A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { Icon } from '../design-system/Icon'
+import { turnThemePage } from '../design-system/themeTransition'
 
 export const PublicLayout: ParentComponent = (props) => {
   const { locale, toggleLocale, t } = useI18n()
@@ -26,13 +27,15 @@ export const PublicLayout: ParentComponent = (props) => {
     onCleanup(() => observer.disconnect())
   })
 
-  const handleToggleTheme = () => {
+  const handleToggleTheme = (event: MouseEvent) => {
     const next = !dark()
-    setDark(next)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('blog_theme', next ? 'dark' : 'light')
-      document.documentElement.dataset.theme = next ? 'dark' : 'light'
-    }
+    turnThemePage(event.currentTarget as HTMLElement, () => {
+      setDark(next)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('blog_theme', next ? 'dark' : 'light')
+        document.documentElement.dataset.theme = next ? 'dark' : 'light'
+      }
+    })
   }
 
   return (

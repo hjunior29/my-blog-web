@@ -1,0 +1,5 @@
+.theme-turn-flap { position: fixed; left: 0; top: 0; z-index: -1; width: 100vw; height: 100vh; pointer-events: none; view-transition-name: theme-flap; }
+:root.theme-turning::view-transition-old(root) { animation: none; }
+:root.theme-turning::view-transition-new(root) { animation: none; mix-blend-mode: normal; clip-path: inset(50%); }
+:root.theme-turning::view-transition-group(theme-flap) { animation: none; filter: drop-shadow(0 0 14px var(--theme-turn-shadow, #28251f40)); }
+:root.theme-turning::view-transition-new(theme-flap) { animation: none; transform-origin: 0 0; clip-path: inset(50%); }

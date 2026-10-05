@@ -345,6 +345,27 @@ describe('Public Pages', () => {
     expect(getByText('404')).not.toBeNull()
   })
 
+  it('PublicLayout theme button switches and persists the theme', () => {
+    localStorage.setItem('blog_theme', 'light')
+    const { container } = render(() => (
+      <I18nProvider>
+        <Router>
+          <Route path="/" component={PublicLayout}>
+            <Route path="/" component={AboutPage} />
+          </Route>
+        </Router>
+      </I18nProvider>
+    ))
+
+    const themeButton = container.querySelector('.theme-button') as HTMLButtonElement
+    expect(document.documentElement.dataset.theme).toBe('light')
+    themeButton.click()
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(themeButton.getAttribute('aria-pressed')).toBe('true')
+    expect(localStorage.getItem('blog_theme')).toBe('dark')
+    localStorage.removeItem('blog_theme')
+  })
+
   it('guarantees no administrative or studio links leak into public navigation or footer', () => {
     const { container } = render(() => (
       <I18nProvider>
