@@ -36,6 +36,8 @@ Use `--paper` for the page, `--surface` to group content, `--raised` for inputs,
 | Dialog | Controlled open prop, onClose after exit. Native modal with localized labels, unique title association, Escape/backdrop dismissal, and caller-managed focus restoration. |
 | Toast | Polite live notification with a dismiss action. The caller owns its duration. |
 | NotebookArt | Two animated CSS illustrations: notebook and correspondence, regular or compact. Requires a localized motionLabel for its pause control. |
+| PaperZoomScene | Scroll-linked home scene. `intro` stays pinned while a paper sheet travels in from the lower left, grows into a full-height page (`--paper-sheet-width`, 920 px by default), scrolls its `children`, and leaves toward the lower right. The page keeps fixed paper colors; its sides show the theme background. Takes `label`, optional `mark`, and `static`. Following content slides under its exit. |
+| LetterScene | Scroll-linked correspondence scene. An envelope turns over, breaks its wax seal, opens, and delivers a tri-fold letter that unfolds in 3D. Takes `opening`, `body`, and `closing` panel slots, optional `heading`, envelope labels, and `static`. Focus inside the letter scrolls to its unfolded state. |
 | PostGrid | Responsive article shelf: three columns on wide screens, two on medium screens, one on phones. Accepts posts and onOpen(trigger, index); composes PostCard with its original Book interaction. |
 | PostCard | Clickable 248 px book cover with optional coverImage/coverPosition, title, category, description, metadata, and onOpen callback. |
 | ProjectCard | Portfolio specimen with descriptive onOpen action. |
@@ -77,6 +79,8 @@ Use `Presence when={visible()}` for conditional surfaces that need both entry an
 Use `animatePresence` for native surfaces with their own lifecycle. Dialog retains its native focus trap and backdrop until exit completes, then closes and calls onClose. Control it through open; do not remove it before exit or call the native close method externally. Close buttons, Escape, backdrop clicks, and programmatic open=false share the same animation. Restore trigger focus in onClose.
 
 Buttons, links, fields, navigation, filters, and toggles share short state transitions. Accordions expand and collapse with a reversible grid-row transition and fade; inline feedback has a small entry fade. Toast uses the slide preset for both entry and exit. Focus indicators appear immediately. Reduced-motion preferences skip presence animations and CSS transitions, without delaying closure or hiding content. Prefer opacity and transform; avoid transition: all, permanent will-change, unrelated layout animation, scroll reveals, and global page entrance animations. The Book reading transition remains a deliberately separate interaction.
+
+PaperZoomScene and LetterScene are the only scroll-linked exceptions, limited to the home page. They pin a stage with native `position: sticky` and share one passive scroll listener (`scrollScene.ts`) that reads layout once per frame, then writes transforms only. `will-change` is applied only while the paper is moving. Set `--scene-top` to the height of any sticky header above them. Reduced motion renders both as static, fully readable layouts.
 
 
 ## Catalog routes

@@ -1,0 +1,139 @@
+.letter-scene { position: relative; }
+
+.letter-scene-stage { position: relative; display: grid; justify-items: center; gap: 40px; }
+.letter-scene[data-mode='animated'] .letter-scene-stage {
+  display: block;
+  position: sticky;
+  top: var(--scene-top, 0px);
+  height: calc(100vh - var(--scene-top, 0px));
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.letter-scene-heading { width: min(38rem, 100%); text-align: center; }
+.letter-scene[data-mode='animated'] .letter-scene-heading { position: absolute; top: clamp(20px, 6vh, 64px); left: 50%; translate: -50% 0; width: min(38rem, calc(100% - 32px)); }
+
+.letter-scene-rig { position: relative; width: 100%; }
+.letter-scene[data-mode='animated'] .letter-scene-rig { position: absolute; left: 50%; top: 50%; width: 0; height: 0; perspective: 1400px; }
+
+.letter-envelope-part { display: none; }
+.letter-scene[data-mode='animated'] .letter-envelope-part {
+  --unit: calc(var(--envelope-width, 600px) / 100);
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--envelope-width, 600px);
+  height: var(--envelope-height, 280px);
+  translate: -50% -50%;
+}
+.letter-scene[data-side='front'] :is(.letter-envelope-back, .letter-envelope-flap, .letter-envelope-pocket, .letter-envelope-seal),
+.letter-scene[data-side='back'] .letter-envelope-front { visibility: hidden; }
+
+.letter-envelope-back { z-index: 1; background: #a98b6d; border-radius: 3px; box-shadow: 0 28px 56px -14px #28251f66, 0 6px 14px #28251f26; }
+.letter-envelope-flap { z-index: 5; background: #dcc8ad; clip-path: polygon(0 0, 100% 0, 50% 58%); }
+.letter-scene[data-flap='open'] .letter-envelope-flap { z-index: 2; background: #b69676; }
+.letter-envelope-pocket { z-index: 4; background: #d3ba99; clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%); }
+.letter-envelope-pocket::before { content: ''; position: absolute; inset: 0; background: #c8ab87; clip-path: polygon(0 100%, 50% 47%, 100% 100%); }
+.letter-envelope-seal { z-index: 6; pointer-events: none; }
+
+.letter-seal { position: absolute; left: 50%; top: 57%; width: calc(var(--unit) * 10.5); aspect-ratio: 1; translate: -50% -50%; }
+.letter-seal-half {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #a74832;
+  box-shadow: inset 0 0 0 calc(var(--unit) * .7) #8c3925, inset 0 0 0 calc(var(--unit) * 1.2) #b75a42, 0 calc(var(--unit) * .6) calc(var(--unit) * 1.4) #28251f4d;
+  color: #f3e6d8;
+  font-family: var(--serif);
+  font-size: calc(var(--unit) * 3.6);
+  letter-spacing: -.07em;
+  line-height: 1;
+}
+.letter-seal-left { clip-path: polygon(0 0, 54% 0, 46% 38%, 56% 62%, 48% 100%, 0 100%); }
+.letter-seal-right { clip-path: polygon(54% 0, 100% 0, 100% 100%, 48% 100%, 56% 62%, 46% 38%); }
+
+.letter-envelope-front { z-index: 8; background: #d6bd9b; border-radius: 3px; box-shadow: 0 28px 56px -14px #28251f66, 0 6px 14px #28251f26; color: #3b3227; }
+.letter-envelope-sender { position: absolute; left: 6%; top: 9%; display: grid; gap: calc(var(--unit) * .6); font-family: var(--mono); font-size: calc(var(--unit) * 1.5); letter-spacing: .12em; text-transform: uppercase; }
+.letter-envelope-sender b { font-family: var(--serif); font-weight: 500; font-size: calc(var(--unit) * 4.6); letter-spacing: -.07em; text-transform: none; line-height: .9; }
+.letter-envelope-stamp {
+  position: absolute;
+  right: 6%;
+  top: 9%;
+  width: calc(var(--unit) * 11);
+  aspect-ratio: .82;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: calc(var(--unit) * .8);
+  background: #a74832;
+  color: #f8f6f1;
+  outline: calc(var(--unit) * .5) dashed #d6bd9b;
+  outline-offset: calc(var(--unit) * -.25);
+  box-shadow: 0 1px 2px #28251f33;
+  rotate: 4deg;
+}
+.letter-envelope-stamp .ds-icon { width: calc(var(--unit) * 4.4); height: calc(var(--unit) * 4.4); }
+.letter-envelope-stamp b { font-family: var(--serif); font-weight: 500; font-size: calc(var(--unit) * 2.4); letter-spacing: -.06em; }
+.letter-envelope-postmark {
+  position: absolute;
+  right: 14%;
+  top: 22%;
+  width: calc(var(--unit) * 13);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--unit) * 1.4);
+  border: calc(var(--unit) * .28) solid #28251f73;
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: calc(var(--unit) * 1.15);
+  letter-spacing: .14em;
+  line-height: 1.4;
+  text-align: center;
+  color: #28251f99;
+  rotate: -14deg;
+}
+.letter-envelope-address { position: absolute; left: 40%; right: 10%; top: 54%; display: grid; gap: calc(var(--unit) * .8); }
+.letter-envelope-address small { font-family: var(--mono); font-size: calc(var(--unit) * 1.4); letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
+.letter-envelope-address strong { font-family: var(--serif); font-weight: 500; font-size: calc(var(--unit) * 3.2); line-height: 1.15; }
+.letter-envelope-address i { display: block; height: 1px; margin-top: calc(var(--unit) * 1.8); background: #3b322740; }
+
+.letter-sheet { position: relative; width: min(600px, 100%); margin-inline: auto; display: grid; grid-auto-rows: 1fr; }
+.letter-scene[data-mode='animated'] .letter-sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: min(600px, calc(100vw - 32px));
+  translate: -50% -50%;
+  transform-style: preserve-3d;
+}
+.letter-scene[data-letter='hidden'] .letter-sheet { opacity: 0; }
+.letter-scene[data-letter='out'] .letter-sheet { z-index: 7; }
+.letter-scene[data-phase='open'] .letter-sheet { pointer-events: auto; }
+
+.letter-panel { position: relative; display: grid; }
+.letter-scene[data-mode='animated'] .letter-panel { transform-style: preserve-3d; }
+.letter-panel-top { transform-origin: 50% 100%; }
+.letter-panel-bottom { transform-origin: 50% 0; }
+
+.letter-face {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 3.6vw, 32px) clamp(20px, 5vw, 44px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: inset 1px 0 0 #28251f1a, inset -1px 0 0 #28251f1a;
+}
+.letter-panel-top > .letter-face:not(.letter-face-back) { box-shadow: inset 1px 0 0 #28251f1a, inset -1px 0 0 #28251f1a, inset 0 1px 0 #28251f1a; }
+.letter-panel-bottom > .letter-face:not(.letter-face-back) { box-shadow: inset 1px 0 0 #28251f1a, inset -1px 0 0 #28251f1a, inset 0 -1px 0 #28251f1a, 0 28px 48px -26px #28251f59; }
+.letter-face::before { content: ''; position: absolute; inset: 0; z-index: 1; background: #28251f; opacity: var(--letter-shade, 0); pointer-events: none; }
+.letter-panel-middle .letter-face { justify-content: center; box-shadow: inset 1px 0 0 #28251f1a, inset -1px 0 0 #28251f1a, inset 0 1px 0 #28251f14, inset 0 -1px 0 #28251f14; }
+
+.letter-face-back { display: none; }
+.letter-scene[data-mode='animated'] .letter-face-back { display: flex; position: absolute; inset: 0; align-items: center; justify-content: center; gap: 16px; transform: rotateX(180deg); }
+.letter-back-mark { font-family: var(--serif); font-size: clamp(36px, 7vw, 56px); line-height: .9; letter-spacing: -.07em; }
+.letter-back-label { font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }

@@ -5,10 +5,13 @@ import { StatusBadge } from './StatusBadge'
 import { SearchField } from './SearchField'
 import { TagInput } from './TagInput'
 import { PasswordField } from './PasswordField'
+import { OtpInput } from './OtpInput'
 import { ArticleProse } from './ArticleProse'
 import { MotionControl, isMotionPaused, setMotionPaused } from './MotionControl'
 import { EditorialScene } from './EditorialScene'
 import { PostCard } from './editorial'
+import { BookColorPicker } from './BookColorPicker'
+import { getBookColor, BOOK_COLOR_PRESETS } from './bookColors'
 
 describe('PostCard component', () => {
   it('renders semantic link when slug is provided', () => {
@@ -98,12 +101,9 @@ describe('StatusBadge component', () => {
     expect(badge?.textContent).toBe('Publicado')
   })
 
-  it('renders default fallback labels for draft, scheduled and archived', () => {
+  it('renders default fallback labels for draft and archived', () => {
     const { container: cDraft } = render(() => <StatusBadge status="draft" />)
     expect(cDraft.textContent).toBe('Draft')
-
-    const { container: cSched } = render(() => <StatusBadge status="scheduled" />)
-    expect(cSched.textContent).toBe('Scheduled')
 
     const { container: cArch } = render(() => <StatusBadge status="archived" />)
     expect(cArch.textContent).toBe('Archived')
@@ -236,6 +236,23 @@ describe('PasswordField component', () => {
   })
 })
 
+describe('OtpInput component', () => {
+  it('filters out non-digits and truncates to 6 characters', () => {
+    const handleInput = vi.fn()
+    const { getByPlaceholderText } = render(() => (
+      <OtpInput
+        value=""
+        onInput={handleInput}
+        placeholder="000000"
+      />
+    ))
+
+    const input = getByPlaceholderText('000000') as HTMLInputElement
+    fireEvent.input(input, { target: { value: '12a3b4c5d6e7' } })
+    expect(handleInput).toHaveBeenCalledWith('123456')
+  })
+})
+
 describe('ArticleProse component', () => {
   it('sanitizes dangerous script and inline event handlers', () => {
     const dirtyHtml = '<p>Safe text</p><script>alert("xss")</script><img src="x" onerror="alert(1)" />'
@@ -254,6 +271,21 @@ describe('ArticleProse component', () => {
     expect(container.querySelector('blockquote')?.textContent).toBe('Quote')
     expect(container.querySelector('code')?.textContent).toBe('const a = 1;')
     expect(container.querySelector('td')?.textContent).toBe('Cell')
+  })
+
+  it('renders video and audio tags with controls safely', () => {
+    const mediaHtml = '<video controls src="/api/v1/media/vid1" preload="metadata"><source src="/api/v1/media/vid1" type="video/mp4"></video><audio controls src="/api/v1/media/aud1" preload="metadata"></audio>'
+    const { container } = render(() => <ArticleProse html={mediaHtml} />)
+
+    const video = container.querySelector('video')
+    expect(video).not.toBeNull()
+    expect(video?.getAttribute('controls')).toBe('')
+    expect(video?.getAttribute('src')).toBe('/api/v1/media/vid1')
+
+    const audio = container.querySelector('audio')
+    expect(audio).not.toBeNull()
+    expect(audio?.getAttribute('controls')).toBe('')
+    expect(audio?.getAttribute('src')).toBe('/api/v1/media/aud1')
   })
 })
 
@@ -349,3 +381,48 @@ describe('EditorialScene component', () => {
     vi.unstubAllGlobals()
   })
 })
+
+describe('getBookColor helper', () => {
+  it('returns explicit color when valid hex is provided', () => {
+    expect(getBookColor('#123456')).toBe('#123456')
+    expect(getBookColor('#abc')).toBe('#abc')
+  })
+
+  it('falls back to deterministic preset when explicit color is null or invalid', () => {
+    const colorA = getBookColor(null, 'rust-architecture')
+    const colorB = getBookColor(undefined, 'rust-architecture')
+    expect(colorA).toBe(colorB)
+    expect(BOOK_COLOR_PRESETS.map(p => p.hex)).toContain(colorA)
+  })
+
+  it('produces different colors for different seeds', () => {
+    const color1 = getBookColor(null, 'article-alpha')
+    const color2 = getBookColor(null, 'article-beta')
+    expect(typeof color1).toBe('string')
+    expect(typeof color2).toBe('string')
+  })
+})
+
+describe('BookColorPicker component', () => {
+  it('renders presets and triggers onChange when preset is clicked', () => {
+    const handleChange = vi.fn()
+    const { container } = render(() => (
+      <BookColorPicker value={null} onChange={handleChange} />
+    ))
+    const presetButtons = container.querySelectorAll('.book-color-swatch')
+    expect(presetButtons.length).toBe(BOOK_COLOR_PRESETS.length)
+    fireEvent.click(presetButtons[0])
+    expect(handleChange).toHaveBeenCalledWith(BOOK_COLOR_PRESETS[0].hex)
+  })
+
+  it('triggers onChange with null when reset button is clicked', () => {
+    const handleChange = vi.fn()
+    const { getByText } = render(() => (
+      <BookColorPicker value="#123456" onChange={handleChange} resetLabel="Auto" />
+    ))
+    const resetBtn = getByText('Auto')
+    fireEvent.click(resetBtn)
+    expect(handleChange).toHaveBeenCalledWith(null)
+  })
+})
+

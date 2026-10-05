@@ -1,9 +1,12 @@
+import { Show } from 'solid-js'
 import { Icon } from './Icon'
 
 export type MarkdownSyntax = 'bold' | 'italic' | 'heading' | 'quote' | 'code' | 'list' | 'link'
 
 export interface EditorToolbarProps {
   readonly onInsert: (syntax: MarkdownSyntax) => void
+  readonly onUploadMedia?: () => void
+  readonly isUploadingMedia?: boolean
   readonly class?: string
 }
 
@@ -73,6 +76,21 @@ export function EditorToolbar(props: EditorToolbarProps) {
       >
         <Icon name="externalLink" size={15} />
       </button>
+      <Show when={props.onUploadMedia}>
+        <div class="toolbar-divider" aria-hidden="true" />
+        <button
+          type="button"
+          class="toolbar-btn"
+          title="Upload media (Image, Video, Audio)"
+          aria-label="Upload media"
+          disabled={props.isUploadingMedia}
+          onClick={props.onUploadMedia}
+        >
+          <Show when={props.isUploadingMedia} fallback={<Icon name="image" size={15} />}>
+            <Icon name="loader" size={14} class="spinner" />
+          </Show>
+        </button>
+      </Show>
     </div>
   )
 }

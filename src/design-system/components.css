@@ -128,12 +128,34 @@ input.search-field-input {
 .password-field-wrapper input.password-field-input,
 .password-field-input {
   width: 100%;
-  padding-right: 44px !important;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 11px 44px 11px 12px !important;
+  background: var(--raised);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: normal;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.password-field-wrapper input.password-field-input:focus,
+.password-field-input:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.password-field-wrapper input.password-field-input:disabled,
+.password-field-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .password-toggle-button {
   position: absolute;
-  right: 12px;
+  right: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,10 +165,48 @@ input.search-field-input {
   background: transparent;
   color: var(--muted);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 
-.password-toggle-button:hover {
+.password-toggle-button:hover:not(:disabled) {
   color: var(--ink);
+}
+
+.password-toggle-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.otp-input-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.otp-input-wrapper input.otp-input-field,
+.otp-input-field {
+  width: 100%;
+  height: 52px;
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.35em;
+  padding: 0 12px !important;
+  box-sizing: border-box;
+  background: var(--raised);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.otp-input-wrapper input.otp-input-field:focus,
+.otp-input-field:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .status-badge.status-draft {
@@ -266,11 +326,20 @@ input.search-field-input {
   font-weight: 600;
 }
 
-.article-prose img {
+.article-prose img,
+.article-prose video {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-sm);
   margin: 2em 0;
+  display: block;
+}
+
+.article-prose audio {
+  width: 100%;
+  max-width: 100%;
+  margin: 1.5em 0;
+  display: block;
 }
 
 .pagination-ellipsis {

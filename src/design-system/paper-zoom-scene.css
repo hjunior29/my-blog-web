@@ -1,0 +1,47 @@
+.paper-scene { --paper-sheet-width: 920px; position: relative; z-index: 1; }
+.paper-scene[data-mode='animated'] { min-height: 300vh; margin-bottom: calc(var(--paper-scene-overlap, 100vh) * -1); pointer-events: none; }
+
+.paper-scene-stage { position: relative; }
+.paper-scene[data-mode='animated'] .paper-scene-stage {
+  position: sticky;
+  top: var(--scene-top, 0px);
+  height: calc(100vh - var(--scene-top, 0px));
+  overflow: hidden;
+  perspective: 1600px;
+  pointer-events: none;
+}
+
+.paper-scene[data-mode='animated'] .paper-scene-intro { position: absolute; inset: 0; transform-origin: 50% 35%; }
+.paper-scene[data-phase='intro'] .paper-scene-intro { pointer-events: auto; }
+
+.paper-scene-backsheet { display: none; }
+.paper-scene[data-mode='animated'] :is(.paper-scene-backsheet, .paper-scene-sheet) {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, var(--paper-sheet-width));
+  translate: -50% 0;
+  transform-origin: 50% 0;
+}
+.paper-scene[data-mode='animated'] .paper-scene-backsheet {
+  display: block;
+  background: #a74832;
+  box-shadow: 0 30px 60px #28251f33;
+  visibility: hidden;
+}
+
+.paper-scene-sheet { position: relative; width: min(100%, var(--paper-sheet-width)); margin-inline: auto; box-shadow: 0 40px 90px #28251f38, 0 10px 24px #28251f1f; }
+.paper-scene[data-mode='animated'] .paper-scene-sheet { overflow: hidden; transform: translate3d(0, 120vh, 0); }
+.paper-scene[data-mode='animated'] .paper-scene-frame { position: absolute; inset: 0; transform-origin: 50% 0; }
+.paper-scene[data-phase='reading'] .paper-scene-sheet { pointer-events: auto; }
+.paper-scene[data-phase='intro'] :is(.paper-scene-sheet, .paper-scene-frame, .paper-scene-backsheet),
+.paper-scene[data-phase='outro'] :is(.paper-scene-sheet, .paper-scene-frame, .paper-scene-backsheet) { will-change: transform; }
+
+.paper-scene-content { min-height: 100%; padding: clamp(28px, 6vh, 64px) 0 clamp(56px, 10vh, 96px); }
+.paper-scene-column { position: relative; width: min(640px, 100%); margin-inline: auto; padding-inline: 24px; }
+
+.paper-scene-brand { display: flex; align-items: flex-end; justify-content: space-between; padding: clamp(8px, 2vh, 20px) 0 clamp(24px, 5vh, 48px); border-bottom: 1px solid var(--border); margin-bottom: clamp(24px, 5vh, 48px); }
+.paper-scene-mark { font-family: var(--serif); font-size: clamp(72px, 10vw, 120px); line-height: .82; letter-spacing: -.07em; color: var(--ink); }
+.paper-scene-asterisk { width: clamp(44px, 5vw, 64px); height: clamp(44px, 5vw, 64px); color: var(--accent); }
+

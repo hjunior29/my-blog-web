@@ -13,8 +13,12 @@ const SANITIZE_CONFIG = {
     'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
     'hr', 'br', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
     'img', 'span', 'figure', 'figcaption',
+    'video', 'audio', 'source',
   ],
-  ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'src', 'alt', 'id', 'class'],
+  ALLOWED_ATTR: [
+    'href', 'title', 'target', 'rel', 'src', 'alt', 'id', 'class',
+    'controls', 'poster', 'loop', 'muted', 'preload', 'width', 'height', 'type',
+  ],
   ADD_ATTR: ['rel'],
   FORCE_BODY: false,
 }

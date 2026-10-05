@@ -12,8 +12,6 @@ export function StatusBadge(props: StatusBadgeProps) {
         return 'Draft'
       case 'published':
         return 'Published'
-      case 'scheduled':
-        return 'Scheduled'
       case 'archived':
         return 'Archived'
       default:

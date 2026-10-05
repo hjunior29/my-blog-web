@@ -4,6 +4,7 @@ import { Icon } from './Icon'
 export interface PasswordFieldProps {
   readonly id: string
   readonly name?: string
+  readonly class?: string
   readonly value: string
   readonly onInput: (value: string) => void
   readonly autocomplete?: 'current-password' | 'new-password'
@@ -27,7 +28,7 @@ export function PasswordField(props: PasswordFieldProps) {
         id={props.id}
         name={props.name ?? props.id}
         type={visible() ? 'text' : 'password'}
-        class="password-field-input"
+        class={`form-input password-field-input${props.class ? ` ${props.class}` : ''}`}
         value={props.value}
         required={props.required}
         disabled={props.disabled}

@@ -4,12 +4,21 @@ import { Badge, Button } from './primitives'
 import { Presence } from './Presence'
 import { animatePresence } from './motion'
 
-export function Toast(props: { message: string; closeLabel: string; onClose: () => void }) {
+export function Toast(props: { message: string; closeLabel: string; duration?: number; onClose: () => void }) {
   const message = createMemo<string>(previous => props.message || previous, '')
+  createEffect(() => {
+    if (props.message) {
+      const ms = props.duration ?? 3500
+      const timer = setTimeout(() => {
+        props.onClose()
+      }, ms)
+      onCleanup(() => clearTimeout(timer))
+    }
+  })
   return <div class="toast-region" role="status" aria-live="polite"><Presence when={!!props.message} preset="slide"><div class="toast"><Icon name="check" />{message()}<button onClick={props.onClose} aria-label={props.closeLabel}><Icon name="close" /></button></div></Presence></div>
 }
 
-export function Dialog(props: { open: boolean; title: string; badge: string; closeLabel: string; className?: string; onClose: () => void; children: JSX.Element }) {
+export function Dialog(props: { open: boolean; title: string; badge: string; closeLabel: string; className?: string; hideFooterClose?: boolean; onClose: () => void; children: JSX.Element }) {
   const titleId = createUniqueId()
   let dialog!: HTMLDialogElement
   let animation: Animation | null = null
@@ -54,6 +63,6 @@ export function Dialog(props: { open: boolean; title: string; badge: string; clo
     <div class="dialog-toolbar"><Badge>{props.badge}</Badge><Button variant="ghost" onClick={close} aria-label={props.closeLabel}><Icon name="close" /></Button></div>
     <h2 id={titleId}>{props.title}</h2>
     {props.children}
-    <Button variant="secondary" onClick={close}>{props.closeLabel}</Button>
+    {!props.hideFooterClose && <Button variant="secondary" onClick={close}>{props.closeLabel}</Button>}
   </dialog>
 }

@@ -1,0 +1,118 @@
+.resizable-split-container {
+  display: flex;
+  width: 100%;
+  min-height: 540px;
+  position: relative;
+  isolation: isolate;
+}
+
+.resizable-pane-left,
+.resizable-pane-right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.resizable-pane-collapsed {
+  display: none !important;
+}
+
+.resizable-gutter {
+  width: 12px;
+  margin: 0 4px;
+  flex: 0 0 12px;
+  position: relative;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition: background-color 0.15s ease;
+  z-index: 5;
+}
+
+.resizable-gutter:hover,
+.resizable-gutter.dragging {
+  background: var(--raised);
+}
+
+.resizable-gutter:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.resizable-gutter-line {
+  width: 2px;
+  height: 100%;
+  background: var(--border);
+  border-radius: 1px;
+  transition: background-color 0.15s ease, width 0.15s ease;
+}
+
+.resizable-gutter:hover .resizable-gutter-line,
+.resizable-gutter.dragging .resizable-gutter-line {
+  background: var(--accent);
+  width: 3px;
+}
+
+.resizable-gutter-handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: var(--muted);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.resizable-gutter.at-edge {
+  width: 20px;
+  flex: 0 0 20px;
+  margin: 0 2px;
+  background: var(--raised);
+  border: 1px dashed var(--accent);
+}
+
+.resizable-gutter.at-edge .resizable-gutter-handle {
+  width: 20px;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+}
+
+.dragging-active * {
+  user-select: none !important;
+}
+
+@media (max-width: 768px) {
+  .resizable-gutter {
+    display: none !important;
+  }
+
+  .resizable-split-container {
+    display: block;
+    min-height: auto;
+  }
+
+  .resizable-pane-left,
+  .resizable-pane-right {
+    width: 100% !important;
+  }
+
+  .resizable-pane-left:has(.hide-pane-mobile),
+  .resizable-pane-right:has(.hide-pane-mobile) {
+    display: none !important;
+  }
+}

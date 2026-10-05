@@ -5,6 +5,8 @@ import { Author, NotebookArt, PostCard, ProjectCard, Quote } from '../design-sys
 import { Book } from '../design-system/Book'
 import { PostGrid } from '../design-system/PostGrid'
 import { Icon } from '../design-system/Icon'
+import { PaperZoomScene } from '../design-system/PaperZoomScene'
+import { LetterScene } from '../design-system/LetterScene'
 import { Colors, Spacing, Typography } from '../showcase/Foundations'
 import { Icons } from '../showcase/Icons'
 import { catalogCopy, type CatalogId } from './content'
@@ -55,6 +57,8 @@ export function Examples(props: ExampleProps) {
     <Match when={props.id === 'author'}><Sample title={c().default}><Author name={props.t.author} description={props.t.authorRole} /></Sample></Match>
     <Match when={props.id === 'quote'}><Sample title={c().default}><Quote caption={props.t.quoteCaption}>{props.t.quote}</Quote></Sample></Match>
     <Match when={props.id === 'artwork'}><Sample title={c().notebook}><NotebookArt compact motionLabel={c().pauseMotion} /></Sample><Sample title={c().correspondence}><NotebookArt compact variant="correspondence" motionLabel={c().pauseMotion} /></Sample></Match>
+    <Match when={props.id === 'paper-scene'}><Sample title={c().default} wide><PaperZoomScene static label={props.t.notebookLabel} intro={null}><h3 class="reading-preview-title">{props.t.notebookTitle}</h3><p>{props.t.notebookLead}</p></PaperZoomScene></Sample></Match>
+    <Match when={props.id === 'letter-scene'}><Sample title={c().default}><LetterScene static label={props.t.letterLabel} recipientLabel={props.t.letterRecipientLabel} recipient={props.t.letterRecipient} sender={props.t.letterSender} postmark={props.t.letterPostmark} foldedLabel={props.t.letterFoldedLabel} opening={<p>{props.t.letterGreeting}</p>} body={<p>{props.t.letterBody[0]}</p>} closing={<p>{props.t.letterClosing} {props.t.letterSignature}</p>} /></Sample></Match>
     <Match when={props.id === 'article'}><Sample title={c().default}><div class="sample-stack"><Badge accent>{props.t.subjects[1]}</Badge><h3 class="reading-preview-title">{props.t.articleTitle}</h3><p>{props.t.articleBody}</p><Author name={props.t.author} description={props.t.date} /><Button variant="secondary" onClick={() => props.openArticle()}>{props.t.primary}<Arrow /></Button></div></Sample></Match>
   </Switch>
 }

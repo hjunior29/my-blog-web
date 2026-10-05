@@ -2,6 +2,7 @@ import { Icon } from './Icon'
 import type { JSX } from 'solid-js'
 import { Arrow, Badge } from './primitives'
 import { Book } from './Book'
+import { getBookColor } from './bookColors'
 import './post-card.css'
 
 export { NotebookArt } from './NotebookArt'
@@ -17,6 +18,7 @@ export interface PostCardProps {
   readonly tags?: readonly string[]
   readonly coverImage?: string
   readonly coverPosition?: string
+  readonly bookColor?: string | null
   readonly onOpen?: (trigger: HTMLElement) => void
   readonly onHover?: () => void
 }
@@ -47,7 +49,7 @@ export function PostCard(props: PostCardProps) {
         <Book
           title={props.title}
           width={248}
-          color="var(--accent)"
+          color={getBookColor(props.bookColor, props.slug || props.title)}
           coverImage={props.coverImage}
           coverPosition={props.coverPosition}
           icon={<span class="post-book-mark">h.</span>}
