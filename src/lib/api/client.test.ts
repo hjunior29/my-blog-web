@@ -306,5 +306,65 @@ describe('apiClient', () => {
     })
     await expect(apiClient.deletePost('post-1', '"etag-1"')).resolves.toBeUndefined()
   })
+
+  it('uploads media file via multipart form data', async () => {
+    setCsrfToken('csrf-token')
+    const mockMedia = {
+      id: 'media-1',
+      filename: 'photo.jpg',
+      content_type: 'image/jpeg',
+      media_kind: 'image',
+      size_bytes: 1024,
+      public_url: '/api/v1/media/media-1',
+      created_at: '2026-10-04T00:00:00Z',
+    }
+
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, init: RequestInit) => {
+      expect(url).toBe('/api/v1/admin/media')
+      expect(init.method).toBe('POST')
+      expect(init.body instanceof FormData).toBe(true)
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => mockMedia,
+      }
+    })
+
+    const file = new File(['image-content'], 'photo.jpg', { type: 'image/jpeg' })
+    const res = await apiClient.uploadMedia(file)
+    expect(res).toEqual(mockMedia)
+  })
+
+  it('fetches admin media list with filter params', async () => {
+    const mockList = { items: [], total: 0, limit: 10, offset: 0 }
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
+      expect(url).toBe('/api/v1/admin/media?kind=video&limit=10&offset=0')
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => mockList,
+      }
+    })
+
+    const res = await apiClient.getAdminMedia({ kind: 'video', limit: 10, offset: 0 })
+    expect(res).toEqual(mockList)
+  })
+
+  it('deletes media by id', async () => {
+    setCsrfToken('csrf-token')
+    globalThis.fetch = vi.fn().mockImplementation(async (url: string, init: RequestInit) => {
+      expect(url).toBe('/api/v1/admin/media/media-1')
+      expect(init.method).toBe('DELETE')
+      return {
+        ok: true,
+        status: 204,
+        headers: new Headers(),
+      }
+    })
+
+    await expect(apiClient.deleteMedia('media-1')).resolves.toBeUndefined()
+  })
 })
 

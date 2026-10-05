@@ -4,6 +4,12 @@ import type {
   CreatePostDto,
   CsrfResponse,
   LoginResponse,
+  LoginResult,
+  MediaKind,
+  MediaListResponse,
+  MediaResponse,
+  ResendTwoFactorResponse,
+  TwoFactorChallengeResponse,
   PostListResponse,
   PostResponse,
   PostStatus,
@@ -51,7 +57,7 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   const method = (init.method || 'GET').toUpperCase()
   const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
 
-  if (isMutation && endpoint !== '/auth/login' && !inMemoryCsrfToken) {
+  if (isMutation && endpoint !== '/auth/login' && !endpoint.startsWith('/auth/2fa/') && !inMemoryCsrfToken) {
     try { await apiClient.getCsrfToken() }
     catch (error) {
       clearTimeout(timeoutId)
@@ -183,13 +189,40 @@ export const apiClient = {
     return res.data.csrf_token
   },
 
-  async login(email: string, password: string): Promise<LoginResponse> {
-    const res = await request<LoginResponse>('/auth/login', {
+  async login(email: string, password: string, remember_me?: boolean): Promise<LoginResult> {
+    const body: Record<string, unknown> = { email, password }
+    if (remember_me !== undefined) body.remember_me = remember_me
+    const res = await request<LoginResult>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(body),
       skipAuthRefresh: true,
     })
-    setCsrfToken(res.data.csrf_token)
+    if (!res.data.requires_2fa && res.data.csrf_token) {
+      setCsrfToken(res.data.csrf_token)
+    }
+    return res.data
+  },
+
+  async verifyTwoFactor(challenge_token: string, code: string, remember_me?: boolean): Promise<LoginResponse> {
+    const body: Record<string, unknown> = { challenge_token, code }
+    if (remember_me !== undefined) body.remember_me = remember_me
+    const res = await request<LoginResponse>('/auth/2fa/verify', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      skipAuthRefresh: true,
+    })
+    if (res.data?.csrf_token) {
+      setCsrfToken(res.data.csrf_token)
+    }
+    return res.data
+  },
+
+  async resendTwoFactor(challenge_token: string): Promise<ResendTwoFactorResponse> {
+    const res = await request<ResendTwoFactorResponse>('/auth/2fa/resend', {
+      method: 'POST',
+      body: JSON.stringify({ challenge_token }),
+      skipAuthRefresh: true,
+    })
     return res.data
   },
 
@@ -282,6 +315,23 @@ export const apiClient = {
     return { post: res.data, etag: res.etag }
   },
 
+  async savePostDraft(id: string, dto: UpdatePostDto, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
+    const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/draft`, {
+      method: 'PATCH',
+      body: JSON.stringify(dto),
+      etag: etag ?? (dto.version !== undefined ? `"${dto.version}"` : undefined),
+    })
+    return { post: res.data, etag: res.etag }
+  },
+
+  async discardPostDraft(id: string, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
+    const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/draft`, {
+      method: 'DELETE',
+      etag,
+    })
+    return { post: res.data, etag: res.etag }
+  },
+
   async publishPost(id: string, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
     const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/publish`, {
       method: 'POST',
@@ -292,6 +342,22 @@ export const apiClient = {
 
   async unpublishPost(id: string, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
     const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/unpublish`, {
+      method: 'POST',
+      etag,
+    })
+    return { post: res.data, etag: res.etag }
+  },
+
+  async archivePost(id: string, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
+    const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/archive`, {
+      method: 'POST',
+      etag,
+    })
+    return { post: res.data, etag: res.etag }
+  },
+
+  async unarchivePost(id: string, etag?: string): Promise<{ post: PostResponse; etag?: string }> {
+    const res = await request<PostResponse>(`/admin/posts/${encodeURIComponent(id)}/unarchive`, {
       method: 'POST',
       etag,
     })
@@ -311,5 +377,32 @@ export const apiClient = {
       body: JSON.stringify(dto),
     })
     return res.data
+  },
+
+  async uploadMedia(file: File): Promise<MediaResponse> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await request<MediaResponse>('/admin/media', {
+      method: 'POST',
+      body: formData,
+      timeoutMs: 120000,
+    })
+    return res.data
+  },
+
+  async getAdminMedia(params?: { kind?: MediaKind; limit?: number; offset?: number }): Promise<MediaListResponse> {
+    const search = new URLSearchParams()
+    if (params?.kind) search.set('kind', params.kind)
+    if (typeof params?.limit === 'number') search.set('limit', String(params.limit))
+    if (typeof params?.offset === 'number') search.set('offset', String(params.offset))
+    const query = search.toString() ? `?${search.toString()}` : ''
+    const res = await request<MediaListResponse>(`/admin/media${query}`)
+    return res.data
+  },
+
+  async deleteMedia(id: string): Promise<void> {
+    await request<void>(`/admin/media/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    })
   },
 }

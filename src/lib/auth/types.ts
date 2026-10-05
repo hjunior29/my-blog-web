@@ -16,4 +16,10 @@ export type AuthChannelMessage =
 export interface LoginCredentials {
   readonly email: string
   readonly password: string
+  readonly remember_me?: boolean
 }
+
+export type LoginStoreResult =
+  | { readonly requires_2fa: false }
+  | { readonly requires_2fa: true; readonly challenge_token: string; readonly email_masked: string }
+

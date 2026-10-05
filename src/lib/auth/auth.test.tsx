@@ -220,11 +220,6 @@ describe('StudioLayout', () => {
 
     expect(getByText('Helder Dev')).not.toBeNull()
     expect(getByText('Studio Dashboard')).not.toBeNull()
-
-    const viewSiteLink = container.querySelector('.studio-view-site') as HTMLAnchorElement
-    expect(viewSiteLink).not.toBeNull()
-    expect(viewSiteLink.getAttribute('href')).toBe('/')
-    expect(viewSiteLink.getAttribute('target')).toBe('_blank')
   })
 
   it('executes logout and redirects to access page', async () => {

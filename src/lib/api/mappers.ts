@@ -54,6 +54,9 @@ export const mapPostSummaryToViewModel = (
     status: dto.status,
     version: dto.version ?? 1,
     authorId: String(dto.author_id),
+    bookColor: dto.book_color ?? null,
+    coverImage: dto.featured_image_media_id ?? null,
+    hasDraft: dto.has_draft ?? false,
   }
 }
 
@@ -86,5 +89,8 @@ export const mapPostToViewModel = (
     version: dto.version,
     authorId: String(dto.author_id),
     etag,
+    bookColor: dto.book_color ?? null,
+    coverImage: dto.featured_image_media_id ?? null,
+    hasDraft: dto.has_draft ?? false,
   }
 }

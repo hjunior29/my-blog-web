@@ -6,6 +6,11 @@ export interface ArticleSample {
   readonly category: string
 }
 
+export interface NotebookEntry {
+  readonly title: string
+  readonly body: string
+}
+
 export interface Copy {
   readonly brandName: string
   readonly navMain: string
@@ -22,13 +27,37 @@ export interface Copy {
   readonly heroCta: string
   readonly recentArticlesTitle: string
   readonly allArticlesLink: string
+  readonly recentArticlesSubtitle: string
   readonly topicsTitle: string
   readonly topicsSubtitle: string
   readonly aboutBriefTitle: string
   readonly aboutBriefBody: string
   readonly aboutReadMore: string
-  readonly closingTitle: string
   readonly closingSubtitle: string
+  readonly heroScrollCue: string
+  readonly notebookLabel: string
+  readonly notebookKicker: string
+  readonly notebookTitle: string
+  readonly notebookLead: string
+  readonly notebookTopicsTitle: string
+  readonly notebookTopics: readonly NotebookEntry[]
+  readonly notebookStackTitle: string
+  readonly notebookStack: string
+  readonly notebookRulesTitle: string
+  readonly notebookRules: readonly string[]
+  readonly letterEyebrow: string
+  readonly letterHeading: string
+  readonly letterLabel: string
+  readonly letterRecipientLabel: string
+  readonly letterRecipient: string
+  readonly letterSender: string
+  readonly letterPostmark: string
+  readonly letterFoldedLabel: string
+  readonly letterGreeting: string
+  readonly letterBody: readonly string[]
+  readonly letterClosing: string
+  readonly letterSignature: string
+  readonly letterPostscript: string
 
   readonly searchPlaceholder: string
   readonly searchLabel: string
@@ -65,9 +94,22 @@ export interface Copy {
   readonly hidePassword: string
   readonly signInButton: string
   readonly signingInButton: string
+  readonly rememberMe: string
   readonly loginFailedGeneric: string
   readonly unauthorizedTitle: string
   readonly unauthorizedDescription: string
+
+  readonly twoFactorTitle: string
+  readonly twoFactorSubtitle: string
+  readonly otpLabel: string
+  readonly otpPlaceholder: string
+  readonly verifyCodeButton: string
+  readonly verifyingCodeButton: string
+  readonly resendCodeButton: string
+  readonly resendCooldown: (seconds: number) => string
+  readonly codeResentSuccess: string
+  readonly backToLogin: string
+  readonly invalidOtp: string
 
   readonly studioPostsTitle: string
   readonly newPostButton: string
@@ -99,11 +141,21 @@ export interface Copy {
   readonly postContentPlaceholder: string
   readonly postTagsLabel: string
   readonly postTagsPlaceholder: string
+  readonly bookColorLabel: string
+  readonly bookColorAuto: string
   readonly tabEdit: string
   readonly tabPreview: string
   readonly savePublishedButton: string
   readonly saveDraftButton: string
   readonly publishButton: string
+  readonly publishNewVersionButton: string
+  readonly discardDraftButton: string
+  readonly discardDraftConfirm: string
+  readonly discardDraftDialogTitle: string
+  readonly discardDraftDialogMessage: string
+  readonly discardDraftConfirmButton: string
+  readonly draftDiscardedSuccess: string
+  readonly hasDraftBadge: string
   readonly unpublishButton: string
   readonly savingButton: string
   readonly conflictTitle: string
@@ -116,8 +168,31 @@ export interface Copy {
   readonly titleRequiredError: string
   readonly draftCreatedSuccess: string
   readonly draftUpdatedSuccess: string
+  readonly archiveButton: string
+  readonly unarchiveButton: string
   readonly articlePublishedSuccess: string
   readonly articleUnpublishedSuccess: string
+  readonly articleArchivedSuccess: string
+  readonly articleUnarchivedSuccess: string
+  readonly autosaveSaved: string
+  readonly autosaveSaving: string
+  readonly autosavePaused: string
+  readonly autosaveActive: string
+  readonly autosaveUnsaved: string
+  readonly coverImageLabel: string
+  readonly coverImagePlaceholder: string
+  readonly clearCoverButton: string
+  readonly uploadCoverButton: string
+  readonly coverPreviewTitle: string
+  readonly coverPreviewAria: string
+  readonly uploadMediaButton: string
+  readonly uploadingMedia: string
+  readonly mediaUploadedSuccess: string
+  readonly mediaUploadFailed: string
+  readonly insertMediaDialogTitle: string
+  readonly viewModeSplit: string
+  readonly viewModeEditor: string
+  readonly viewModePreview: string
   readonly backToPostsAction: string
 
   readonly studioAccountTitle: string
@@ -279,7 +354,6 @@ export interface Copy {
   readonly principleTitles: readonly string[]
   readonly principleBodies: readonly string[]
   readonly footer: string
-  readonly top: string
   readonly demoAction: string
   readonly token: string
 }

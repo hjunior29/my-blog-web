@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 import { apiClient, setCsrfToken } from '../api/client'
 import { ApiError } from '../api/errors'
-import type { AuthStatus, AuthUser, AuthChannelMessage, LoginCredentials } from './types'
+import type { AuthStatus, AuthUser, AuthChannelMessage, LoginCredentials, LoginStoreResult } from './types'
 
 const [user, setUser] = createSignal<AuthUser | null>(null)
 const [status, setStatus] = createSignal<AuthStatus>('unknown')
@@ -56,8 +56,32 @@ export async function checkAuth(): Promise<boolean> {
   }
 }
 
-export async function login(credentials: LoginCredentials): Promise<void> {
-  const result = await apiClient.login(credentials.email, credentials.password)
+export async function login(credentials: LoginCredentials): Promise<LoginStoreResult> {
+  const result = credentials.remember_me
+    ? await apiClient.login(credentials.email, credentials.password, credentials.remember_me)
+    : await apiClient.login(credentials.email, credentials.password)
+  if (result.requires_2fa) {
+    return {
+      requires_2fa: true,
+      challenge_token: result.challenge_token,
+      email_masked: result.email_masked,
+    }
+  }
+  if (result.user.role !== 'owner' || result.user.status !== 'active') {
+    setUser(null)
+    setStatus('unauthorized')
+    return { requires_2fa: false }
+  }
+  setUser(result.user)
+  setStatus('authenticated')
+  broadcast({ type: 'login' })
+  return { requires_2fa: false }
+}
+
+export async function verify2Fa(challenge_token: string, code: string, remember_me?: boolean): Promise<void> {
+  const result = remember_me
+    ? await apiClient.verifyTwoFactor(challenge_token, code, remember_me)
+    : await apiClient.verifyTwoFactor(challenge_token, code)
   if (result.user.role !== 'owner' || result.user.status !== 'active') {
     setUser(null)
     setStatus('unauthorized')
@@ -66,6 +90,10 @@ export async function login(credentials: LoginCredentials): Promise<void> {
   setUser(result.user)
   setStatus('authenticated')
   broadcast({ type: 'login' })
+}
+
+export async function resend2Fa(challenge_token: string): Promise<{ challenge_token: string; email_masked: string }> {
+  return await apiClient.resendTwoFactor(challenge_token)
 }
 
 export async function logout(): Promise<void> {
@@ -82,5 +110,7 @@ export const authStore = {
   setStatus,
   checkAuth,
   login,
+  verify2Fa,
+  resend2Fa,
   logout,
 }

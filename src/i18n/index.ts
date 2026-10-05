@@ -3,7 +3,7 @@ import type { Copy, Locale } from './types.ts'
 import { pt } from './pt.ts'
 import { en } from './en.ts'
 
-export type { Copy, Locale, ArticleSample } from './types.ts'
+export type { Copy, Locale, ArticleSample, NotebookEntry } from './types.ts'
 
 export const dictionaries: Record<Locale, Copy> = { pt, en }
 

@@ -52,8 +52,8 @@ code { font-size:var(--text-xs); }
 .spinner { width:14px; height:14px; animation:spin 1s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .field { display:grid; gap:8px; }
-.field label { font-weight:600; }
-input:not([type='checkbox']):not(.search-field-input):not(.password-field-input),textarea,select { width:100%; border:1px solid var(--sand); border-radius:var(--radius-sm); background:var(--raised); color:var(--ink); padding:11px 12px; min-height:46px; }
+input:not([type='checkbox']):not(.search-field-input),textarea,select { width:100%; border:1px solid var(--sand); border-radius:var(--radius-sm); background:var(--raised); color:var(--ink); padding:11px 12px; min-height:46px; transition:border-color .16s ease, box-shadow .16s ease; }
+input:not([type='checkbox']):not(.search-field-input):focus,textarea:focus,select:focus { outline:none; border-color:var(--focus); box-shadow:0 0 0 2px var(--accent-soft); }
 textarea { resize:vertical; }
 input::placeholder,textarea::placeholder { color:var(--muted); }
 input[aria-invalid='true'] { border-color:var(--accent); }
