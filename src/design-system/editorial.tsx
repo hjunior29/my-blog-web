@@ -45,7 +45,7 @@ export function PostCard(props: PostCardProps) {
 
   return (
     <article class="post-card post-book-card">
-      <div class="post-book-stage">
+      <div class="post-book-stage" data-book-slug={props.slug}>
         <Book
           title={props.title}
           width={248}

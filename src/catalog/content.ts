@@ -1,6 +1,6 @@
 import type { Locale } from '../showcase/copy'
 
-export const catalogIds = ['colors', 'typography', 'spacing', 'motion', 'icons', 'button', 'badge', 'field', 'toggle', 'pagination', 'accordion', 'alert', 'empty', 'skeleton', 'dialog', 'toast', 'book', 'post', 'post-grid', 'project', 'author', 'quote', 'artwork', 'article', 'paper-scene', 'letter-scene'] as const
+export const catalogIds = ['colors', 'typography', 'spacing', 'motion', 'icons', 'button', 'badge', 'field', 'toggle', 'pagination', 'accordion', 'alert', 'empty', 'skeleton', 'dialog', 'toast', 'book', 'post', 'post-grid', 'project', 'author', 'quote', 'artwork', 'article', 'bookmark', 'paper-scene', 'letter-scene'] as const
 export type CatalogId = typeof catalogIds[number]
 const pt = {
   overview: 'Visão geral', introduction: 'As peças que dão forma ao blog. Explore cada componente ou veja o sistema completo nesta página.',
@@ -32,6 +32,7 @@ const pt = {
     quote: ['Citação', 'Uma pausa editorial para destacar uma ideia.'],
     artwork: ['Ilustração', 'O caderno visual que acompanha a identidade do blog.'],
     article: ['Página de leitura', 'Texto, autoria e imagem em uma composição pensada para a leitura.'],
+    bookmark: ['Marcador de página', 'Uma fita terracota pende do topo e desce conforme a leitura avança, como uma barra de progresso.'],
     'paper-scene': ['Folha em zoom', 'Uma folha entra na diagonal com o scroll, cresce até ocupar a tela e se torna a seção. Sem movimento, vira um bloco de papel.'],
     'letter-scene': ['Carta desdobrável', 'Um envelope vira, perde o selo e entrega uma carta que se desdobra em três partes. Sem movimento, a carta aparece aberta.'],
   },
@@ -66,6 +67,7 @@ const en: typeof pt = {
     quote: ['Quote', 'An editorial pause to highlight an idea.'],
     artwork: ['Illustration', 'The visual notebook that accompanies the blog identity.'],
     article: ['Reading page', 'Text, authorship, and imagery arranged for reading.'],
+    bookmark: ['Bookmark ribbon', 'A terracotta ribbon hangs from the header and descends as reading progresses, like a progress bar.'],
     'paper-scene': ['Zooming sheet', 'A sheet travels in diagonally on scroll, grows to fill the screen, and becomes the section. Without motion, it is a paper block.'],
     'letter-scene': ['Unfolding letter', 'An envelope turns, loses its seal, and delivers a letter that unfolds in three panels. Without motion, the letter appears open.'],
   },

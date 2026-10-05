@@ -1,0 +1,5 @@
+.ds-bookmark-ribbon { --ribbon-top: 0px; --ribbon-right: 24px; --ribbon-width: 20px; --ribbon-stub: 28px; --ribbon-gap: 40px; position: fixed; top: var(--ribbon-top); right: var(--ribbon-right); z-index: 1; width: var(--ribbon-width); height: calc(100dvh - var(--ribbon-top) - var(--ribbon-gap)); overflow: hidden; pointer-events: none; }
+.ds-bookmark-ribbon-band { --ribbon-progress: 0; height: 100%; background: var(--accent); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - var(--ribbon-width) * .45), 0 100%); transform: translate3d(0, calc((var(--ribbon-progress) - 1) * (100% - var(--ribbon-stub))), 0); will-change: transform; animation: ds-ribbon-drop .5s cubic-bezier(.22,.75,.25,1) .2s backwards; }
+.ds-bookmark-ribbon-static { position: absolute; height: calc(100% - var(--ribbon-top) - var(--ribbon-gap)); }
+.ds-bookmark-ribbon-static .ds-bookmark-ribbon-band { animation: none; }
+@keyframes ds-ribbon-drop { from { translate: 0 calc(var(--ribbon-stub) * -1); } }

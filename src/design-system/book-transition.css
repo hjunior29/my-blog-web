@@ -16,3 +16,9 @@
 .book-transition-text span:nth-child(6n) { width: 62%; margin-bottom: 5%; }
 .book-transition-text span:nth-child(5n) { width: 89%; }
 .book-transition-text span:last-child { width: 48%; }
+
+.book-transition-return::backdrop { background: transparent; }
+.book-transition-return .book-transition-flight { left: 0; top: 0; transform-origin: 0 0; }
+.book-transition-shade,.book-transition-sheet { position: absolute; inset: 0; }
+.book-transition-shade { background: #28251f55; }
+.book-transition-sheet { background: #f8f6f1; }

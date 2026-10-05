@@ -320,3 +320,16 @@
     font-size: 11px;
   }
 }
+
+.article-reader .ds-bookmark-ribbon {
+  --ribbon-top: var(--public-header-height, 65px);
+  --ribbon-right: max(4px, calc(50% - 436px));
+}
+
+@media (max-width: 900px) {
+  .article-reader .ds-bookmark-ribbon {
+    --ribbon-width: 10px;
+    --ribbon-stub: 18px;
+    --ribbon-gap: 24px;
+  }
+}

@@ -281,6 +281,44 @@ describe('Public Pages', () => {
     expect(toast).not.toBeNull()
   })
 
+  it('ArticlePage shows the reading ribbon and returns to the shelf', async () => {
+    window.history.pushState({}, '', '/posts/ribbon')
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    vi.spyOn(apiClient, 'getPostBySlug').mockResolvedValue({
+      id: 'p1',
+      slug: 'ribbon',
+      title: 'Ribbon Article',
+      summary: 'Lead',
+      content_md: 'Body',
+      content_html: '<p>Body</p>',
+      featured_image_media_id: null,
+      status: 'published',
+      published_at: 1727400000,
+      created_at: 1727390000,
+      updated_at: 1727400000,
+      author_id: 'user-1',
+      tags: [],
+      version: 1,
+    })
+
+    const { container, findByRole, findByText } = render(() => (
+      <I18nProvider>
+        <Router>
+          <Route path="/posts" component={() => <p>Shelf</p>} />
+          <Route path="/posts/:slug" component={ArticlePage} />
+        </Router>
+      </I18nProvider>
+    ))
+
+    const backLink = await findByRole('link', { name: /Back to all articles|Voltar para todos os artigos/i })
+    expect(container.querySelector('.article-reader .ds-bookmark-ribbon')?.getAttribute('aria-hidden')).toBe('true')
+    expect(backLink.getAttribute('href')).toBe('/posts')
+    backLink.click()
+
+    expect(await findByText('Shelf')).not.toBeNull()
+    expect(window.location.pathname).toBe('/posts')
+  })
+
   it('AboutPage renders author title and colophon', () => {
     const { getByRole, getByText } = render(() => (
       <I18nProvider>

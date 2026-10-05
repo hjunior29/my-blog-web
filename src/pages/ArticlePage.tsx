@@ -1,13 +1,17 @@
 import { createSignal, createEffect, Show } from 'solid-js'
-import { useParams, A } from '@solidjs/router'
+import { useParams, useNavigate, A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { getCachedPost, prefetchPost } from '../lib/api/postsCache.ts'
 import type { PostViewModel } from '../lib/api/types.ts'
-import { ArticleProse, Alert, Badge, Button, Icon, Skeleton, Toast } from '../design-system'
+import { ArticleProse, Alert, Badge, BookmarkRibbon, Button, Icon, Skeleton, Toast, bookReturnHref, transitionArticleToBook } from '../design-system'
+
+const SHELF_PATH = '/posts'
 
 export function ArticlePage() {
   const { t, locale } = useI18n()
   const params = useParams()
+  const navigate = useNavigate()
+  let articleElement: HTMLElement | undefined
 
   const currentLocale = () => (locale() === 'pt' ? 'pt-BR' : 'en-US')
   const initialCached = params.slug ? getCachedPost(params.slug, currentLocale()) : null
@@ -77,6 +81,20 @@ export function ArticlePage() {
     }
   }
 
+  const backHref = () => bookReturnHref(params.slug ?? '', SHELF_PATH)
+
+  const handleBack = (event: MouseEvent) => {
+    if (!params.slug || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    transitionArticleToBook({
+      slug: params.slug,
+      href: backHref(),
+      label: t().backToArticles,
+      restoreFocus: event.detail === 0,
+      navigate: (href) => navigate(href, { scroll: false }),
+    })
+  }
+
   return (
     <div class="article-reader-container">
       <Show when={!loading()} fallback={
@@ -108,9 +126,10 @@ export function ArticlePage() {
             </div>
           </Show>
         }>
-          <article class="article-reader">
+          <article ref={articleElement} class="article-reader">
+            <BookmarkRibbon target={() => articleElement} />
             <nav class="article-top-nav" aria-label="Article navigation">
-              <A href="/posts" class="article-back-btn" title={t().backToArticles} aria-label={t().backToArticles}>
+              <A href={backHref()} class="article-back-btn" title={t().backToArticles} aria-label={t().backToArticles} onClick={handleBack}>
                 <Icon name="arrowLeft" size={18} />
               </A>
               <Button variant="ghost" size="small" onClick={handleShare} aria-label={t().shareArticle} class="article-share-btn">

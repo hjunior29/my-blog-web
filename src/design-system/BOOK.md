@@ -67,3 +67,16 @@ The Book page compares image and color-only covers; the article shelf alternates
 The animation uses native Web Animations and a temporary dialog in the top layer, without another library. Transform and opacity drive the animation. The book stays at its original position while opening, then zooms to fill the viewport. Both inner pages keep light paper (#f8f6f1) and dark ink (#28251f) in either theme, with decorative text lines that fade during the zoom. The full sequence takes about 1.05 seconds. Escape cancels, AbortSignal supports navigation cleanup, and reduced-motion users go directly to the article. Temporary nodes, animations, scroll locks, and source visibility are cleaned up when complete or canceled.
 
 The catalog opens its sample article at `#article` and returns to the originating component page. ArticlePage uses the existing editorial typography and surfaces, with optional image, author, metadata, prose, and a return action. Book geometry exists only during the transition. The app restores heading focus after entry and post-button focus after return.
+
+## Return transition
+
+`transitionArticleToBook({ slug, href, label, navigate, restoreFocus })` plays the opening in reverse. Paper covers the article (120 ms), the page shrinks into the open spread centered on screen (340 ms), the spread holds (60 ms), the cover closes while the Book turns to -32 degrees (380 ms), and the Book slides into its shelf slot while settling flat (440 ms). The dimmed backdrop fades out during the final slide.
+
+The opening transition remembers the clicked Book: slug, shelf path, scroll position, size, and a styled snapshot. PostCard marks each stage with `data-book-slug`. On return, the snapshot animates immediately while the shelf loads underneath; the transition restores the remembered scroll position and centers the Book if it would be hidden. Without a snapshot, as after a direct visit, it waits up to 1.8 s for the shelf and clones the Book from there. If the Book never appears, the overlay fades out over the shelf.
+
+`navigate` must not scroll; the transition owns scrolling. The scroll lock reserves the scrollbar gutter so the landing position does not shift. Escape skips to the shelf, reduced-motion users navigate directly, and `restoreFocus` moves focus to the Book action after keyboard activation.
+
+## Reading ribbon
+
+`BookmarkRibbon` hangs below the public header on the article page and descends as the article is read. Progress runs from the article top reaching the header to the article bottom reaching the viewport bottom. One band moves with `translate3d`, driven by a single custom property in the shared scroll-scene frame; the swallowtail keeps its shape because the band slides instead of scaling. The ribbon is decorative and hidden from assistive technology.
+

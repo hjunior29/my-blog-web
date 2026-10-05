@@ -1,19 +1,22 @@
-import './book-transition.css'
+import { EASE_IN_OUT, buildSpread, cloneBook, createAnimator, createOverlay, createPart, nextPaint, prefersReducedMotion, rememberShelf, showOverlay } from './bookFlight'
+
+const findSourceBook = (element: HTMLElement): HTMLElement => (
+  element.classList.contains('ds-book')
+    ? element
+    : element.closest('.post-book-stage')?.querySelector<HTMLElement>('.ds-book')
+      ?? element.querySelector<HTMLElement>('.ds-book')
+      ?? element
+)
+
+function rememberOrigin(source: HTMLElement, copy: HTMLElement, bounds: DOMRect) {
+  const slug = source.closest<HTMLElement>('[data-book-slug]')?.dataset.bookSlug
+  if (!slug) return
+  rememberShelf({ slug, pathname: location.pathname, search: location.search, scrollY: window.scrollY, width: bounds.width, height: bounds.height, snapshot: copy.cloneNode(true) as HTMLElement })
+}
 
 export async function transitionBookToArticle(element: HTMLElement, reveal: () => void | Promise<void>, signal: AbortSignal, label: string) {
-  const source = (
-    element.classList.contains('ds-book')
-      ? element
-      : element.closest('.post-book-stage')?.querySelector<HTMLElement>('.ds-book')
-        ?? element.querySelector<HTMLElement>('.ds-book')
-        ?? element
-  ) as HTMLElement
-
-  if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    await reveal()
-    return
-  }
-  if (!source || !source.animate || !source.querySelector?.('.ds-book-rotate')) {
+  const source = findSourceBook(element)
+  if (prefersReducedMotion() || !source || !source.animate || !source.querySelector?.('.ds-book-rotate')) {
     await reveal()
     return
   }
@@ -23,62 +26,24 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
     return
   }
   const originalVisibility = source.style.visibility
-  const overlay = document.createElement('dialog')
-  overlay.className = 'book-transition-overlay'
-  overlay.setAttribute('aria-label', label)
-  overlay.setAttribute('aria-busy', 'true')
-  const flight = document.createElement('div')
-  flight.className = 'book-transition-flight'
-  Object.assign(flight.style, { left: `${bounds.left}px`, top: `${bounds.top}px`, width: `${bounds.width}px`, height: `${bounds.height}px` })
-  const copy = source.cloneNode(true) as HTMLElement
-  copy.classList.add('book-transition-copy')
-  copy.setAttribute('aria-hidden', 'true')
-  copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'))
-  const computed = getComputedStyle(source)
-  for (const token of ['--book-color', '--book-cover', '--book-text', '--book-back']) copy.style.setProperty(token, computed.getPropertyValue(token))
-  const originalTitle = source.querySelector('.ds-book-title')
-  const title = copy.querySelector<HTMLElement>('.ds-book-title')
-  if (title && originalTitle) title.style.fontFamily = getComputedStyle(originalTitle).fontFamily
-  const turn = copy.querySelector<HTMLElement>('.ds-book-rotate')
+  const copy = cloneBook(source)
+  rememberOrigin(source, copy, bounds)
   const sourceTurn = source.querySelector<HTMLElement>('.ds-book-rotate')
-  const cover = copy.querySelector<HTMLElement>('.ds-book-cover')
-  if (!turn || !sourceTurn || !cover) {
+  const spread = sourceTurn ? buildSpread(copy) : undefined
+  if (!sourceTurn || !spread) {
     reveal()
     return
   }
+  const { turn, hinge, texts } = spread
   const initialTurn = getComputedStyle(sourceTurn).transform
   turn.style.transform = initialTurn
-  const hinge = document.createElement('div')
-  hinge.className = 'book-transition-hinge'
-  const inside = document.createElement('div')
-  inside.className = 'book-transition-inside'
-  const page = document.createElement('div')
-  page.className = 'book-transition-page'
-  const seam = document.createElement('div')
-  seam.className = 'book-transition-seam'
-  for (const sheet of [inside, page]) {
-    const text = document.createElement('div')
-    text.className = 'book-transition-text'
-    for (let index = 0; index < 18; index++) {
-      const line = document.createElement('span')
-      text.append(line)
-    }
-    sheet.append(text)
-  }
-  page.append(seam)
-  turn.prepend(page)
-  cover.before(hinge)
-  hinge.append(cover, inside)
+  const overlay = createOverlay(label)
+  const flight = createPart('book-transition-flight')
+  Object.assign(flight.style, { left: `${bounds.left}px`, top: `${bounds.top}px`, width: `${bounds.width}px`, height: `${bounds.height}px` })
   flight.append(copy)
   overlay.append(flight)
   document.body.append(overlay)
-  const animations: Animation[] = []
-  const animate = (element: Element, frames: Keyframe[], duration: number, easing = 'cubic-bezier(.22,.75,.25,1)') => {
-    const animation = element.animate(frames, { duration, easing, fill: 'forwards' })
-    animations.push(animation)
-    return animation.finished
-  }
-  const abort = () => animations.forEach(animation => animation.cancel())
+  const { animate, cancel: abort } = createAnimator()
   const cancel = (event: Event) => { event.preventDefault(); overlay.close() }
   overlay.addEventListener('cancel', cancel)
   overlay.addEventListener('close', abort)
@@ -89,8 +54,7 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
   const zoomed = `translate3d(${centerX - bounds.width * zoom / 2}px, ${centerY}px, 0) scale(${zoom})`
   const previousOverflow = document.documentElement.style.overflow
   try {
-    if (typeof overlay.showModal === 'function') overlay.showModal()
-    else overlay.setAttribute('open', '')
+    showOverlay(overlay)
     document.documentElement.style.overflow = 'hidden'
     source.style.visibility = 'hidden'
     overlay.dataset.phase = 'rotate'
@@ -104,19 +68,19 @@ export async function transitionBookToArticle(element: HTMLElement, reveal: () =
     await animate(flight, [{ transform: 'none' }, { transform: 'none' }], 80)
     overlay.dataset.phase = 'zoom'
     await Promise.all([
-      animate(flight, [{ transform: 'none' }, { transform: zoomed }], 330, 'cubic-bezier(.65,0,.35,1)'),
-      ...Array.from(copy.querySelectorAll('.book-transition-text'), text => animate(text, [{ opacity: 1 }, { opacity: 0 }], 240)),
+      animate(flight, [{ transform: 'none' }, { transform: zoomed }], 330, EASE_IN_OUT),
+      ...texts.map(text => animate(text, [{ opacity: 1 }, { opacity: 0 }], 240)),
     ])
     if (signal.aborted || !overlay.open) return
     await reveal()
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+    await nextPaint()
     await animate(overlay, [{ opacity: 1 }, { opacity: 0 }], 130, 'ease-out')
   } catch {
     if (!signal.aborted && overlay.open) await reveal()
   } finally {
     signal.removeEventListener('abort', abort)
     overlay.removeEventListener('close', abort)
-    animations.forEach(animation => animation.cancel())
+    abort()
     overlay.remove()
     source.style.visibility = originalVisibility
     document.documentElement.style.overflow = previousOverflow

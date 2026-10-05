@@ -21,6 +21,8 @@ Use `--paper` for the page, `--surface` to group content, `--raised` for inputs,
 | Book | Isolated Geist visual study with stripe/simple covers, 3D hover, optional texture, and custom artwork. See [BOOK.md](./BOOK.md). |
 | ArticlePage | Editorial reading layout with localized metadata, optional cover image, prose children, and onBack action. |
 | transitionBookToArticle | Native Book opening and zoom transition with cancellation and reduced-motion fallback. See [BOOK.md](./BOOK.md). |
+| transitionArticleToBook | Reverse of the opening: the page shrinks into the open Book, the cover closes, and the Book slides back to its shelf slot. `bookReturnHref(slug, shelfPath)` returns the remembered shelf page. See [BOOK.md](./BOOK.md). |
+| BookmarkRibbon | Decorative terracotta reading-progress ribbon. Pass `target` to follow the reading position of an element, or `progress` (0–1) for a fixed specimen. Position it with `--ribbon-top`, `--ribbon-right`, `--ribbon-width`, `--ribbon-stub`, and `--ribbon-gap`. |
 | Button | Native button attributes; primary, secondary, ghost variants; small/default/large sizes; busy and disabled states. Provide a localized accessible name for icon-only buttons. |
 | Arrow | Decorative direction indicator; optional diagonal direction. |
 | Badge | Neutral or accent metadata. Not interactive. |
