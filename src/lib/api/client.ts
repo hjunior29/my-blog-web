@@ -9,7 +9,6 @@ import type {
   MediaListResponse,
   MediaResponse,
   ResendTwoFactorResponse,
-  TwoFactorChallengeResponse,
   PostListResponse,
   PostResponse,
   PostStatus,

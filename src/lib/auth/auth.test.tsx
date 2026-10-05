@@ -203,7 +203,7 @@ describe('StudioLayout', () => {
       status: 'active',
     })
 
-    const { getByText, container } = render(() => (
+    const { getByText } = render(() => (
       <I18nProvider>
         <Router>
           <Route

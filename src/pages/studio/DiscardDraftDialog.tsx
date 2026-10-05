@@ -26,7 +26,7 @@ export function DiscardDraftDialog(props: DiscardDraftDialogProps) {
           <Button variant="secondary" onClick={props.onClose} disabled={props.busy}>
             {t().cancelAction}
           </Button>
-          <Button variant="danger" onClick={props.onConfirm} busy={props.busy}>
+          <Button variant="primary" onClick={props.onConfirm} busy={props.busy}>
             {t().discardDraftConfirmButton}
           </Button>
         </div>

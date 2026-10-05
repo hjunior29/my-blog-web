@@ -19,8 +19,6 @@ describe('StudioAccessPage Two-Factor Flow', () => {
       requires_2fa: true,
       challenge_token: 'test-challenge-uuid',
       email_masked: 'h***a@gmail.com',
-      expires_in_seconds: 300,
-      resend_cooldown_seconds: 30,
     })
 
     const verifySpy = vi.spyOn(apiClient, 'verifyTwoFactor').mockResolvedValue({
@@ -30,6 +28,9 @@ describe('StudioAccessPage Two-Factor Flow', () => {
         display_name: 'Helder',
         role: 'owner',
         status: 'active',
+        bio: null,
+        created_at: 0,
+        updated_at: 0,
       },
       csrf_token: 'mock-csrf-token',
     })
@@ -70,8 +71,6 @@ describe('StudioAccessPage Two-Factor Flow', () => {
       requires_2fa: true,
       challenge_token: 'remember-me-challenge-uuid',
       email_masked: 'h***a@gmail.com',
-      expires_in_seconds: 300,
-      resend_cooldown_seconds: 30,
     })
 
     const verifySpy = vi.spyOn(apiClient, 'verifyTwoFactor').mockResolvedValue({
@@ -81,6 +80,9 @@ describe('StudioAccessPage Two-Factor Flow', () => {
         display_name: 'Helder',
         role: 'owner',
         status: 'active',
+        bio: null,
+        created_at: 0,
+        updated_at: 0,
       },
       csrf_token: 'mock-csrf-token',
     })

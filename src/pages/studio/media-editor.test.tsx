@@ -57,7 +57,8 @@ describe('EditorMetaCard cover upload', () => {
       media_kind: 'image',
       size_bytes: 500,
       public_url: 'https://storage/cover.png',
-      created_at: '2026-10-04T00:00:00Z',
+      uploader_id: 1,
+      created_at: 1728000000,
     })
 
     const screen = render(() => (

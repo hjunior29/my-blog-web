@@ -215,7 +215,7 @@ describe('apiClient', () => {
 
     const loginRes = await apiClient.login('a@b.com', 'secret123')
     expect(callCount).toBe(1)
-    expect(loginRes.csrf_token).toBe('csrf-logged')
+    expect('csrf_token' in loginRes && loginRes.csrf_token).toBe('csrf-logged')
     expect(getStoredCsrfToken()).toBe('csrf-logged')
   })
 

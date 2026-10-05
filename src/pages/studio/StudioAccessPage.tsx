@@ -174,7 +174,7 @@ export function StudioAccessPage() {
 
         <Show when={successMessage()}>
           <div class="studio-access-error">
-            <Alert success title={t().success}>
+            <Alert title={t().success}>
               <p>{successMessage()}</p>
             </Alert>
           </div>
