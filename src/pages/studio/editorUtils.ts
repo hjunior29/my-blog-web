@@ -65,3 +65,24 @@ export function readMarkdownFile(file: File, onLoad: (text: string) => void): vo
   }
   reader.readAsText(file)
 }
+
+export function formatMediaMarkdown(kind: 'image' | 'video' | 'audio', url: string, filename: string): string {
+  if (kind === 'image') {
+    return `\n![${filename}](${url})\n`
+  }
+  if (kind === 'video') {
+    return `\n<video controls src="${url}" preload="metadata"></video>\n`
+  }
+  return `\n<audio controls src="${url}" preload="metadata"></audio>\n`
+}
+
+export function insertTextAtCursor(
+  current: string,
+  start: number,
+  end: number,
+  insertion: string,
+): { nextValue: string; cursor: number } {
+  const nextValue = current.substring(0, start) + insertion + current.substring(end)
+  const cursor = start + insertion.length
+  return { nextValue, cursor }
+}

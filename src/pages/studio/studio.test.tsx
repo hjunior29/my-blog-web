@@ -297,6 +297,37 @@ describe('StudioEditorPage', () => {
       expect(publishSpy).toHaveBeenCalledWith('post-1', '"2"')
     })
   })
+
+  it('saves draft to draft revision endpoint when post is published', async () => {
+    window.history.pushState({}, '', '/studio/posts/post-published/edit')
+
+    const publishedPost = { ...mockPost, id: 'post-published', status: 'published' as const }
+    vi.spyOn(apiClient, 'getAdminPost').mockResolvedValue({
+      post: publishedPost,
+      etag: '"1"',
+    })
+    const draftSpy = vi.spyOn(apiClient, 'savePostDraft').mockResolvedValue({
+      post: { ...publishedPost, has_draft: true },
+      etag: '"1"',
+    })
+
+    const { findByDisplayValue, findByText } = render(() => (
+      <I18nProvider>
+        <Router>
+          <Route path="/studio/posts/:id/edit" component={StudioEditorPage} />
+        </Router>
+      </I18nProvider>
+    ))
+
+    await findByDisplayValue('Test Article')
+
+    const saveDraftBtn = await findByText(/Save draft|Salvar rascunho/i)
+    fireEvent.click(saveDraftBtn)
+
+    await waitFor(() => {
+      expect(draftSpy).toHaveBeenCalled()
+    })
+  })
 })
 
 describe('StudioAccountPage', () => {

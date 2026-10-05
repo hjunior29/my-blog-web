@@ -124,15 +124,6 @@ export function StudioPostsPage() {
         <button
           type="button"
           role="tab"
-          aria-selected={statusFilter() === 'scheduled'}
-          class={`filter-tab ${statusFilter() === 'scheduled' ? 'active' : ''}`}
-          onClick={() => handleFilterChange('scheduled')}
-        >
-          {t().statusScheduled}
-        </button>
-        <button
-          type="button"
-          role="tab"
           aria-selected={statusFilter() === 'archived'}
           class={`filter-tab ${statusFilter() === 'archived' ? 'active' : ''}`}
           onClick={() => handleFilterChange('archived')}
@@ -195,7 +186,14 @@ export function StudioPostsPage() {
                       </Show>
                     </td>
                     <td class="td-status">
-                      <StatusBadge status={post.status} />
+                      <div class="table-status-group">
+                        <StatusBadge status={post.status} />
+                        <Show when={post.has_draft}>
+                          <span class="has-draft-pill" title={t().hasDraftBadge}>
+                            {t().hasDraftBadge}
+                          </span>
+                        </Show>
+                      </div>
                     </td>
                     <td class="td-tags">
                       <div class="table-tags-list">
@@ -264,6 +262,7 @@ export function StudioPostsPage() {
         title={t().deleteConfirmTitle}
         badge="Danger"
         closeLabel={t().cancelAction}
+        hideFooterClose={true}
         onClose={() => {
           if (!isDeleting()) {
             setPostToDelete(null)
@@ -283,6 +282,16 @@ export function StudioPostsPage() {
           </Show>
 
           <div class="dialog-actions-row">
+            <Button
+              variant="secondary"
+              disabled={isDeleting()}
+              onClick={() => {
+                setPostToDelete(null)
+                setDeleteError(null)
+              }}
+            >
+              {t().cancelAction}
+            </Button>
             <Button
               variant="primary"
               busy={isDeleting()}

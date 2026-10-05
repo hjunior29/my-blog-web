@@ -41,10 +41,6 @@ export const StudioLayout: ParentComponent = (props) => {
             {authStore.user()?.display_name || authStore.user()?.email}
           </span>
 
-          <A href="/" class="studio-view-site" target="_blank" rel="noopener noreferrer">
-            {t().brandName}
-          </A>
-
           <Button variant="ghost" size="small" onClick={handleLogout}>
             {t().logoutButton}
           </Button>

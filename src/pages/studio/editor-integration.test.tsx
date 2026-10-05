@@ -56,7 +56,8 @@ it('preserves unsaved text when unpublishing and saves with the new version', as
   fireEvent.input(await screen.findByDisplayValue('Article'), {
     target: { value: 'Unsaved title' },
   })
-  fireEvent.click(await screen.findByText(/Unpublish|Despublicar/i))
+  const unpublishBtns = await screen.findAllByRole('button', { name: /Unpublish|Despublicar/i })
+  fireEvent.click(unpublishBtns[0])
   fireEvent.click(await screen.findByText(/Save draft|Salvar rascunho/i))
   await waitFor(() => expect(update).toHaveBeenCalledWith('1',
     expect.objectContaining({ title: 'Unsaved title', version: 2 }), '"2"'))
