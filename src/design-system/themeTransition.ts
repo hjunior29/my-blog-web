@@ -1,7 +1,7 @@
 import { easeInOutCubic } from './scrollScene'
 import './theme-transition.css'
 
-const DURATION_MS = 4320
+const DURATION_MS = 720
 const STEPS = 30
 const TILT = 0.35
 const NORM = Math.hypot(1, TILT)
