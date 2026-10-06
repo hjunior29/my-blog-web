@@ -11,6 +11,25 @@ export interface NotebookEntry {
   readonly body: string
 }
 
+export interface AboutPillar {
+  readonly title: string
+  readonly badge: string
+  readonly description: string
+}
+
+export interface AboutExperienceItem {
+  readonly role: string
+  readonly period: string
+  readonly detail: string
+}
+
+export interface AboutEducationItem {
+  readonly degree: string
+  readonly institution: string
+  readonly period: string
+  readonly detail: string
+}
+
 export interface Copy {
   readonly brandName: string
   readonly navMain: string
@@ -79,11 +98,24 @@ export interface Copy {
   readonly articleNotFoundTitle: string
   readonly articleNotFoundBody: string
 
+  readonly aboutPageEyebrow: string
   readonly aboutPageTitle: string
   readonly aboutPageIntro: string
   readonly aboutPageBio: string
+  readonly aboutPageBioExtended: string
+  readonly aboutPillarsTitle: string
+  readonly aboutPillars: readonly AboutPillar[]
+  readonly aboutExperienceTitle: string
+  readonly aboutExperienceItems: readonly AboutExperienceItem[]
+  readonly aboutEducationTitle: string
+  readonly aboutEducationItems: readonly AboutEducationItem[]
   readonly aboutPageColophonTitle: string
   readonly aboutPageColophon: string
+  readonly aboutContactTitle: string
+  readonly aboutContactSubtitle: string
+  readonly contactGithub: string
+  readonly contactLinkedin: string
+  readonly contactEmail: string
 
   readonly studioAccessTitle: string
   readonly studioAccessSubtitle: string
