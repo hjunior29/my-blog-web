@@ -48,6 +48,12 @@ export function BookmarkRibbon(props: BookmarkRibbonProps) {
 
   const hasScrolled = () => currentProgress() >= (props.threshold ?? 0.05)
 
+  let pullTimer: ReturnType<typeof setTimeout> | undefined
+
+  onCleanup(() => {
+    if (pullTimer) clearTimeout(pullTimer)
+  })
+
   const handlePull = (e: MouseEvent) => {
     e.stopPropagation()
     const prefersReducedMotion =
@@ -56,8 +62,10 @@ export function BookmarkRibbon(props: BookmarkRibbonProps) {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     if (!prefersReducedMotion) {
-      setIsPulling(true)
-      setTimeout(() => setIsPulling(false), 500)
+      if (pullTimer) clearTimeout(pullTimer)
+      setIsPulling(false)
+      requestAnimationFrame(() => setIsPulling(true))
+      pullTimer = setTimeout(() => setIsPulling(false), 450)
     }
 
     if (hasScrolled()) {
@@ -88,6 +96,7 @@ export function BookmarkRibbon(props: BookmarkRibbonProps) {
       <button
         type="button"
         class="ds-bookmark-ribbon-trigger"
+        classList={{ 'ds-bookmark-ribbon-pull': isPulling() }}
         disabled={!isInteractive()}
         onClick={handlePull}
         aria-label={resolveAriaLabel()}
@@ -95,7 +104,6 @@ export function BookmarkRibbon(props: BookmarkRibbonProps) {
         <div
           ref={band}
           class="ds-bookmark-ribbon-band"
-          classList={{ 'ds-bookmark-ribbon-pull': isPulling() }}
           style={props.progress !== undefined ? { '--ribbon-progress': String(clamp(props.progress)) } : undefined}
         />
         <Show when={hasScrolled()}>
