@@ -342,6 +342,22 @@ input.search-field-input {
   display: block;
 }
 
+.article-mermaid {
+  margin: 2em 0;
+  padding: 24px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.article-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .pagination-ellipsis {
   display: inline-flex;
   align-items: center;
