@@ -6,7 +6,7 @@ import { SearchField } from './SearchField'
 import { TagInput } from './TagInput'
 import { PasswordField } from './PasswordField'
 import { OtpInput } from './OtpInput'
-import { ArticleProse } from './ArticleProse'
+import { ArticleProse, normalizeMermaidCode } from './ArticleProse'
 import { MotionControl, isMotionPaused, setMotionPaused } from './MotionControl'
 import { EditorialScene } from './EditorialScene'
 import { PostCard } from './editorial'
@@ -286,6 +286,14 @@ describe('ArticleProse component', () => {
     expect(audio).not.toBeNull()
     expect(audio?.getAttribute('controls')).toBe('')
     expect(audio?.getAttribute('src')).toBe('/api/v1/media/aud1')
+  })
+
+  it('normalizes mermaid code with unquoted parens in edge labels and invalid bidirectional arrows', () => {
+    const input = 'flowchart LR\n  A -->|Busca O(1) sem locks| B\n  B <==>|Canal WebSocket TLS| C\n  C -- Decisão (tipo 1) --> D'
+    const result = normalizeMermaidCode(input)
+    expect(result).toContain('A -->|"Busca O(1) sem locks"| B')
+    expect(result).toContain('B <-->|Canal WebSocket TLS| C')
+    expect(result).toContain('C -- "Decisão (tipo 1)" --> D')
   })
 })
 

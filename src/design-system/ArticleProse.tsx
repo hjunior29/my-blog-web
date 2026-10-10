@@ -25,6 +25,26 @@ const SANITIZE_CONFIG = {
   FORCE_BODY: false,
 }
 
+export function normalizeMermaidCode(raw: string): string {
+  return raw
+    .replace(/\r\n/g, '\n')
+    .replace(/<==>/g, '<-->')
+    .replace(/\|([^"|\n\r]+?)\|/g, (match, inner) => {
+      const trimmed = inner.trim()
+      if (trimmed.includes('(') || trimmed.includes(')') || trimmed.includes('<') || trimmed.includes('>')) {
+        return `|"${trimmed.replace(/"/g, '')}"|`
+      }
+      return match
+    })
+    .replace(/--\s*([^"\-|\n\r]+?)\s*-->/g, (match, inner) => {
+      const trimmed = inner.trim()
+      if (trimmed.includes('(') || trimmed.includes(')')) {
+        return `-- "${trimmed.replace(/"/g, '')}" -->`
+      }
+      return match
+    })
+}
+
 export function ArticleProse(props: ArticleProseProps) {
   let articleRef: HTMLElement | undefined
   const { t } = useI18n()
@@ -67,8 +87,9 @@ export function ArticleProse(props: ArticleProseProps) {
         const codeElement = mermaidNodes[i] as HTMLElement
         const preElement = codeElement.parentElement as HTMLElement | null
         if (!preElement) continue
-        const code = codeElement.textContent?.trim() || ''
-        if (!code) continue
+        const rawCode = codeElement.textContent?.trim() || ''
+        if (!rawCode) continue
+        const code = normalizeMermaidCode(rawCode)
         const diagramId = `mermaid-${Math.random().toString(36).slice(2, 9)}`
         try {
           const { svg } = await mermaid.render(diagramId, code)
@@ -85,11 +106,13 @@ export function ArticleProse(props: ArticleProseProps) {
             <div class="article-mermaid-svg-wrapper">${svg}</div>
           `
           preElement.replaceWith(container)
-        } catch {
+        } catch (err) {
+          console.error('[Mermaid render error]', err)
           cleanupMermaidErrorNodes(diagramId)
         }
       }
-    } catch {
+    } catch (err) {
+      console.error('[Mermaid module error]', err)
     }
   }
 
@@ -131,9 +154,10 @@ export function ArticleProse(props: ArticleProseProps) {
         fontFamily: 'var(--sans, system-ui, sans-serif)',
       })
       for (const container of containers) {
-        const code = container.dataset.mermaidCode
+        const rawCode = container.dataset.mermaidCode || ''
         const svgWrapper = container.querySelector('.article-mermaid-svg-wrapper')
-        if (!code || !svgWrapper) continue
+        if (!rawCode || !svgWrapper) continue
+        const code = normalizeMermaidCode(rawCode)
         const diagramId = `mermaid-${Math.random().toString(36).slice(2, 9)}`
         try {
           const { svg } = await mermaid.render(diagramId, code)
