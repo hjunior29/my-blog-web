@@ -73,6 +73,7 @@ export const pt: Copy = {
   backToArticles: 'Voltar para todos os artigos',
   tableOfContents: 'Neste artigo',
   expandDiagram: 'Expandir diagrama',
+  expandImage: 'Expandir imagem',
   zoomIn: 'Aumentar zoom',
   zoomOut: 'Diminuir zoom',
   resetZoom: 'Redefinir visualização',

@@ -103,4 +103,21 @@ describe('DiagramModal component', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(handleClose).toHaveBeenCalledTimes(1)
   })
+
+  it('renders image when imageSrc is provided', () => {
+    const handleClose = vi.fn()
+    const { getByRole } = render(() => (
+      <DiagramModal
+        open={true}
+        imageSrc="/api/v1/media/img1.png"
+        imageAlt="Architecture Diagram"
+        onClose={handleClose}
+      />
+    ))
+
+    const img = getByRole('img')
+    expect(img).not.toBeNull()
+    expect(img.getAttribute('src')).toBe('/api/v1/media/img1.png')
+    expect(img.getAttribute('alt')).toBe('Architecture Diagram')
+  })
 })

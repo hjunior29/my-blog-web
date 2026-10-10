@@ -73,6 +73,7 @@ export const en: Copy = {
   backToArticles: 'Back to all articles',
   tableOfContents: 'On this page',
   expandDiagram: 'Expand diagram',
+  expandImage: 'Expand image',
   zoomIn: 'Zoom in',
   zoomOut: 'Zoom out',
   resetZoom: 'Reset view',

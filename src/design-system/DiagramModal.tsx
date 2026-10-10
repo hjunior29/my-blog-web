@@ -5,7 +5,9 @@ import './diagram-modal.css'
 
 export interface DiagramModalProps {
   readonly open: boolean
-  readonly svgHtml: string
+  readonly svgHtml?: string
+  readonly imageSrc?: string
+  readonly imageAlt?: string
   readonly title?: string
   readonly onClose: () => void
   readonly labels?: {
@@ -107,13 +109,19 @@ export function DiagramModal(props: DiagramModalProps) {
 
   const zoomPercent = () => `${Math.round(scale() * 100)}%`
 
+  const modalTitle = () => {
+    if (props.title) return props.title
+    if (props.imageSrc) return props.imageAlt || 'Image'
+    return 'Diagram'
+  }
+
   return (
     <Show when={props.open}>
-      <div class="diagram-modal-backdrop" role="dialog" aria-modal="true" aria-label={props.title ?? 'Diagram'}>
+      <div class="diagram-modal-backdrop" role="dialog" aria-modal="true" aria-label={modalTitle()}>
         <header class="diagram-modal-toolbar">
           <div class="diagram-modal-title">
-            <Icon name="code" size={16} />
-            <span>{props.title ?? 'Diagram'}</span>
+            <Icon name={props.imageSrc ? 'image' : 'code'} size={16} />
+            <span>{modalTitle()}</span>
           </div>
 
           <div class="diagram-modal-controls">
@@ -184,8 +192,19 @@ export function DiagramModal(props: DiagramModalProps) {
               transform: `translate3d(${translateX()}px, ${translateY()}px, 0) scale(${scale()})`,
               'transition': isDragging() ? 'none' : 'transform 0.08s ease-out',
             }}
-            innerHTML={props.svgHtml}
-          />
+          >
+            <Show when={props.svgHtml}>
+              <div class="diagram-modal-svg-host" innerHTML={props.svgHtml} />
+            </Show>
+            <Show when={props.imageSrc}>
+              <img
+                src={props.imageSrc}
+                alt={props.imageAlt ?? ''}
+                class="diagram-modal-img"
+                draggable={false}
+              />
+            </Show>
+          </div>
         </div>
       </div>
     </Show>

@@ -104,13 +104,34 @@
   will-change: transform;
 }
 
-.diagram-modal-canvas svg {
+.diagram-modal-svg-host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diagram-modal-canvas svg,
+.diagram-modal-canvas img {
   display: block;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.diagram-modal-canvas svg {
   width: min(1100px, 86vw);
   max-width: none !important;
   max-height: none !important;
   height: auto;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08));
+}
+
+.diagram-modal-img {
+  max-width: 86vw !important;
+  max-height: 82vh !important;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
 }
 
 @media (max-width: 640px) {

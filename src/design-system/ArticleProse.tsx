@@ -30,6 +30,7 @@ export function ArticleProse(props: ArticleProseProps) {
   const { t } = useI18n()
 
   const [activeSvg, setActiveSvg] = createSignal('')
+  const [activeImage, setActiveImage] = createSignal<{ src: string; alt: string } | null>(null)
   const [isModalOpen, setIsModalOpen] = createSignal(false)
 
   const sanitizedHtml = createMemo(() => {
@@ -92,6 +93,29 @@ export function ArticleProse(props: ArticleProseProps) {
     }
   }
 
+  const enhanceArticleImages = () => {
+    if (!articleRef || typeof window === 'undefined') return
+    const images = articleRef.querySelectorAll<HTMLImageElement>('img')
+    for (const img of images) {
+      if (img.closest('.article-image-container') || img.closest('.article-mermaid')) continue
+      const wrapper = document.createElement('div')
+      wrapper.className = 'article-image-container'
+      img.parentNode?.insertBefore(wrapper, img)
+      wrapper.appendChild(img)
+
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'article-image-expand-btn'
+      btn.setAttribute('aria-label', t().expandImage)
+      btn.setAttribute('title', t().expandImage)
+      btn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        <span>${t().expandImage}</span>
+      `
+      wrapper.appendChild(btn)
+    }
+  }
+
   const rerenderMermaidTheme = async () => {
     if (!articleRef || typeof window === 'undefined') return
     const containers = articleRef.querySelectorAll<HTMLElement>('.article-mermaid')
@@ -125,13 +149,32 @@ export function ArticleProse(props: ArticleProseProps) {
   const handleArticleClick = (e: MouseEvent) => {
     const target = e.target as HTMLElement | null
     if (!target) return
+
     const expandBtn = target.closest<HTMLElement>('.article-mermaid-expand-btn')
     const svgWrapper = target.closest<HTMLElement>('.article-mermaid-svg-wrapper')
     if (expandBtn || svgWrapper) {
       const container = target.closest<HTMLElement>('.article-mermaid')
       const svg = container?.querySelector('.article-mermaid-svg-wrapper svg')
       if (svg) {
+        setActiveImage(null)
         setActiveSvg(svg.outerHTML)
+        setIsModalOpen(true)
+      }
+      return
+    }
+
+    const imgExpandBtn = target.closest<HTMLElement>('.article-image-expand-btn')
+    const imgContainer = target.closest<HTMLElement>('.article-image-container')
+    const directImg = target.closest<HTMLImageElement>('img')
+
+    if (imgExpandBtn || imgContainer || directImg) {
+      const img = imgContainer?.querySelector('img') ?? directImg
+      if (img && articleRef?.contains(img)) {
+        setActiveSvg('')
+        setActiveImage({
+          src: img.currentSrc || img.src,
+          alt: img.alt || img.title || '',
+        })
         setIsModalOpen(true)
       }
     }
@@ -140,6 +183,7 @@ export function ArticleProse(props: ArticleProseProps) {
   createEffect(() => {
     sanitizedHtml()
     renderMermaidDiagrams()
+    enhanceArticleImages()
   })
 
   createEffect(() => {
@@ -166,6 +210,8 @@ export function ArticleProse(props: ArticleProseProps) {
       <DiagramModal
         open={isModalOpen()}
         svgHtml={activeSvg()}
+        imageSrc={activeImage()?.src}
+        imageAlt={activeImage()?.alt}
         onClose={() => setIsModalOpen(false)}
         labels={{
           zoomIn: t().zoomIn,

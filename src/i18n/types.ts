@@ -89,6 +89,7 @@ export interface Copy {
   readonly backToArticles: string
   readonly tableOfContents: string
   readonly expandDiagram: string
+  readonly expandImage: string
   readonly zoomIn: string
   readonly zoomOut: string
   readonly resetZoom: string
