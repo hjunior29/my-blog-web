@@ -97,6 +97,8 @@ export interface Copy {
   readonly shareArticle: string
   readonly shareViaWebShare: string
   readonly copyArticleLink: string
+  readonly copyCode: string
+  readonly codeCopied: string
   readonly linkCopied: string
   readonly linkCopyFailed: string
   readonly printArticle: string

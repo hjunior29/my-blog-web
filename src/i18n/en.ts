@@ -81,6 +81,8 @@ export const en: Copy = {
   shareArticle: 'Share',
   shareViaWebShare: 'Share via device',
   copyArticleLink: 'Copy article link',
+  copyCode: 'Copy code',
+  codeCopied: 'Code copied',
   linkCopied: 'Link copied to clipboard',
   linkCopyFailed: 'Could not copy link',
   printArticle: 'Print article',

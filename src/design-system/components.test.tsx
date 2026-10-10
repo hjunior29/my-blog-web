@@ -295,6 +295,23 @@ describe('ArticleProse component', () => {
     expect(result).toContain('B <-->|Canal WebSocket TLS| C')
     expect(result).toContain('C -- "Decisão (tipo 1)" --> D')
   })
+
+  it('highlights code blocks and wraps with language header and copy button', async () => {
+    const codeHtml = '<pre><code class="language-javascript">const answer = 42;</code></pre>'
+    const { container } = render(() => <ArticleProse html={codeHtml} />)
+
+    await new Promise((r) => setTimeout(r, 100))
+
+    const code = container.querySelector('code')
+    expect(code?.classList.contains('hljs')).toBe(true)
+    expect(code?.querySelector('.hljs-keyword')?.textContent).toBe('const')
+    expect(code?.querySelector('.hljs-number')?.textContent).toBe('42')
+
+    const wrapper = container.querySelector('.article-code-container')
+    expect(wrapper).not.toBeNull()
+    expect(wrapper?.querySelector('.article-code-lang')?.textContent).toBe('javascript')
+    expect(wrapper?.querySelector('.article-code-copy-btn')).not.toBeNull()
+  })
 })
 
 describe('MotionControl component', () => {

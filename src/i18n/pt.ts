@@ -81,6 +81,8 @@ export const pt: Copy = {
   shareArticle: 'Compartilhar',
   shareViaWebShare: 'Compartilhar via dispositivo',
   copyArticleLink: 'Copiar link do artigo',
+  copyCode: 'Copiar código',
+  codeCopied: 'Código copiado',
   linkCopied: 'Link copiado para a área de transferência',
   linkCopyFailed: 'Não foi possível copiar o link',
   printArticle: 'Imprimir artigo',

@@ -116,6 +116,101 @@ export function ArticleProse(props: ArticleProseProps) {
     }
   }
 
+  const highlightCodeBlocks = async () => {
+    if (!articleRef || typeof window === 'undefined') return
+    const codeBlocks = articleRef.querySelectorAll<HTMLElement>('pre > code')
+    if (codeBlocks.length === 0) return
+
+    try {
+      const { default: hljs } = await import('highlight.js')
+      for (const codeElement of codeBlocks) {
+        if (codeElement.classList.contains('language-mermaid')) continue
+        if (codeElement.dataset.highlighted === 'yes') continue
+        const pre = codeElement.parentElement as HTMLElement | null
+        if (!pre) continue
+
+        const rawCode = codeElement.textContent ?? ''
+        if (!rawCode.trim()) continue
+
+        const langClass = Array.from(codeElement.classList).find((cls) => cls.startsWith('language-'))
+        const rawLang = langClass ? langClass.replace('language-', '').toLowerCase() : ''
+
+        let highlightedHtml = ''
+        let detectedLang = rawLang || 'code'
+
+        if (rawLang && hljs.getLanguage(rawLang)) {
+          const res = hljs.highlight(rawCode, { language: rawLang, ignoreIllegals: true })
+          highlightedHtml = res.value
+          detectedLang = res.language || rawLang
+        } else {
+          const autoRes = hljs.highlightAuto(rawCode)
+          highlightedHtml = autoRes.value
+          detectedLang = autoRes.language || 'code'
+        }
+
+        codeElement.innerHTML = highlightedHtml
+        codeElement.classList.add('hljs')
+        codeElement.dataset.highlighted = 'yes'
+
+        if (!pre.closest('.article-code-container')) {
+          const container = document.createElement('div')
+          container.className = 'article-code-container'
+          pre.parentNode?.insertBefore(container, pre)
+
+          const header = document.createElement('div')
+          header.className = 'article-code-header'
+          header.innerHTML = `
+            <span class="article-code-lang">${detectedLang}</span>
+            <button type="button" class="article-code-copy-btn" aria-label="${t().copyCode}" title="${t().copyCode}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>${t().copyCode}</span>
+            </button>
+          `
+          container.appendChild(header)
+          container.appendChild(pre)
+
+          const copyBtn = header.querySelector<HTMLButtonElement>('.article-code-copy-btn')
+          if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+              try {
+                if (navigator.clipboard?.writeText) {
+                  await navigator.clipboard.writeText(rawCode)
+                } else {
+                  throw new Error('Clipboard API unavailable')
+                }
+              } catch {
+                try {
+                  const ta = document.createElement('textarea')
+                  ta.value = rawCode
+                  ta.style.position = 'fixed'
+                  ta.style.opacity = '0'
+                  document.body.appendChild(ta)
+                  ta.select()
+                  document.execCommand('copy')
+                  ta.remove()
+                } catch {
+                }
+              }
+              copyBtn.classList.add('copied')
+              copyBtn.innerHTML = `
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>${t().codeCopied}</span>
+              `
+              setTimeout(() => {
+                copyBtn.classList.remove('copied')
+                copyBtn.innerHTML = `
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  <span>${t().copyCode}</span>
+                `
+              }, 2000)
+            })
+          }
+        }
+      }
+    } catch {
+    }
+  }
+
   const enhanceArticleImages = () => {
     if (!articleRef || typeof window === 'undefined') return
     const images = articleRef.querySelectorAll<HTMLImageElement>('img')
@@ -174,6 +269,8 @@ export function ArticleProse(props: ArticleProseProps) {
     const target = e.target as HTMLElement | null
     if (!target) return
 
+    if (target.closest('.article-code-copy-btn')) return
+
     const expandBtn = target.closest<HTMLElement>('.article-mermaid-expand-btn')
     const svgWrapper = target.closest<HTMLElement>('.article-mermaid-svg-wrapper')
     if (expandBtn || svgWrapper) {
@@ -207,6 +304,7 @@ export function ArticleProse(props: ArticleProseProps) {
   createEffect(() => {
     sanitizedHtml()
     renderMermaidDiagrams()
+    highlightCodeBlocks()
     enhanceArticleImages()
   })
 
