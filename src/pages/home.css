@@ -34,6 +34,49 @@
 .home-hero-cue i::after { content: ''; position: absolute; inset: 0 0 auto; height: 14px; background: var(--accent); animation: home-cue 2.4s cubic-bezier(.6, 0, .2, 1) infinite; }
 @keyframes home-cue { 0% { transform: translateY(-14px); } 70%, 100% { transform: translateY(40px); } }
 
+@keyframes home-hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-hero-title {
+    animation: home-hero-fade-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 0.06s;
+  }
+  .home-hero-subtitle {
+    animation: home-hero-fade-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 0.18s;
+  }
+  .home-hero-footer .button {
+    animation: home-hero-fade-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 0.3s;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  }
+  .home-hero-footer .button:hover {
+    transform: translateY(-2px);
+  }
+  .home-hero-footer .button:active {
+    transform: translateY(0);
+  }
+  .home-hero-footer .button .ds-icon {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .home-hero-footer .button:hover .ds-icon {
+    transform: translateX(4px);
+  }
+  .home-hero-cue {
+    animation: home-hero-fade-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 0.44s;
+  }
+}
+
 .home-notebook { display: grid; gap: clamp(24px, 4.5vh, 40px); }
 .home-notebook-kicker { color: var(--accent); }
 .home-notebook-title { margin-top: -12px; font-size: clamp(2rem, 4.2vw, 3.25rem); line-height: 1.08; letter-spacing: -.03em; }

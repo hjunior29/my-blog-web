@@ -6,7 +6,8 @@
   position: sticky;
   top: var(--scene-top, 0px);
   height: calc(100vh - var(--scene-top, 0px));
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   pointer-events: none;
 }
 

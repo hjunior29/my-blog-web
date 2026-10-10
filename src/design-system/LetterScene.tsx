@@ -83,7 +83,7 @@ export function LetterScene(props: LetterSceneProps) {
         top: stickyOffset(stage),
         distance: height * (letterTimeline.end - 1),
         envelopeScale: Math.min(1, (width - 40) / envelopeWidth, (height * 0.5) / envelopeHeight),
-        fitScale: Math.min(1, (height - 48) / letterHeight, (width - 24) / letterWidth),
+        fitScale: Math.min(1, (height - 100) / letterHeight, (width - 32) / letterWidth),
         rise: (panelHeight + envelopeHeight) / 2 + 12,
         baseY: height * 0.08,
       })
