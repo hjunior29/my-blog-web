@@ -174,11 +174,18 @@
   color: var(--muted);
 }
 
-.article-top-nav {
+.article-top-nav,
+.article-bottom-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.article-bottom-nav {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
 }
 
 .article-back-btn {

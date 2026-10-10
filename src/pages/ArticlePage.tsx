@@ -173,6 +173,16 @@ export function ArticlePage() {
             <div class="article-body">
               <ArticleProse html={post()!.contentHtml ?? ''} />
             </div>
+
+            <footer class="article-bottom-nav" aria-label="Article bottom navigation">
+              <A href={backHref()} class="article-back-btn" title={t().backToArticles} aria-label={t().backToArticles} onClick={handleBack}>
+                <Icon name="arrowLeft" size={18} />
+              </A>
+              <Button variant="ghost" size="small" onClick={handleShare} aria-label={t().shareArticle} class="article-share-btn">
+                <Icon name="share" size={15} />
+                <span>{t().shareArticle}</span>
+              </Button>
+            </footer>
           </article>
         </Show>
       </Show>

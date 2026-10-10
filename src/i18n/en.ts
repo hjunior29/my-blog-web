@@ -72,6 +72,11 @@ export const en: Copy = {
 
   backToArticles: 'Back to all articles',
   tableOfContents: 'On this page',
+  expandDiagram: 'Expand diagram',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  resetZoom: 'Reset view',
+  diagramPanHint: 'Drag to pan · Scroll to zoom',
   shareArticle: 'Share',
   shareViaWebShare: 'Share via device',
   copyArticleLink: 'Copy article link',

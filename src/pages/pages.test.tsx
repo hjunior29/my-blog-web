@@ -265,7 +265,7 @@ describe('Public Pages', () => {
       },
     })
 
-    const { findByRole, findByText } = render(() => (
+    const { findAllByRole, findByText } = render(() => (
       <I18nProvider>
         <Router>
           <Route path="/posts/:slug" component={ArticlePage} />
@@ -273,7 +273,7 @@ describe('Public Pages', () => {
       </I18nProvider>
     ))
 
-    const shareBtn = await findByRole('button', { name: /share|compartilhar/i })
+    const [shareBtn] = await findAllByRole('button', { name: /share|compartilhar/i })
     shareBtn.click()
 
     expect(writeTextSpy).toHaveBeenCalled()
@@ -301,7 +301,7 @@ describe('Public Pages', () => {
       version: 1,
     })
 
-    const { container, findByRole, findByText } = render(() => (
+    const { container, findAllByRole, findByText } = render(() => (
       <I18nProvider>
         <Router>
           <Route path="/posts" component={() => <p>Shelf</p>} />
@@ -310,7 +310,7 @@ describe('Public Pages', () => {
       </I18nProvider>
     ))
 
-    const backLink = await findByRole('link', { name: /Back to all articles|Voltar para todos os artigos/i })
+    const [backLink] = await findAllByRole('link', { name: /Back to all articles|Voltar para todos os artigos/i })
     expect(container.querySelector('.article-reader .ds-bookmark-ribbon')?.getAttribute('aria-hidden')).toBe('true')
     expect(backLink.getAttribute('href')).toBe('/posts')
     backLink.click()

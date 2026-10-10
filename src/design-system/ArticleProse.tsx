@@ -1,5 +1,7 @@
 import DOMPurify from 'dompurify'
-import { createMemo, createEffect, onCleanup } from 'solid-js'
+import { createMemo, createEffect, onCleanup, createSignal } from 'solid-js'
+import { useI18n } from '../i18n/index.ts'
+import { DiagramModal } from './DiagramModal'
 
 export interface ArticleProseProps {
   readonly html: string
@@ -25,6 +27,10 @@ const SANITIZE_CONFIG = {
 
 export function ArticleProse(props: ArticleProseProps) {
   let articleRef: HTMLElement | undefined
+  const { t } = useI18n()
+
+  const [activeSvg, setActiveSvg] = createSignal('')
+  const [isModalOpen, setIsModalOpen] = createSignal(false)
 
   const sanitizedHtml = createMemo(() => {
     if (!props.html) return ''
@@ -34,6 +40,11 @@ export function ArticleProse(props: ArticleProseProps) {
     const clean = DOMPurify.sanitize(props.html, SANITIZE_CONFIG)
     return clean
   })
+
+  const cleanupMermaidErrorNodes = (diagramId: string) => {
+    document.getElementById(diagramId)?.remove()
+    document.getElementById(`d${diagramId}`)?.remove()
+  }
 
   const renderMermaidDiagrams = async () => {
     if (!articleRef || typeof window === 'undefined') return
@@ -47,6 +58,7 @@ export function ArticleProse(props: ArticleProseProps) {
         startOnLoad: false,
         theme: isDark ? 'dark' : 'neutral',
         securityLevel: 'loose',
+        suppressErrorRendering: true,
         fontFamily: 'var(--sans, system-ui, sans-serif)',
       })
 
@@ -62,14 +74,21 @@ export function ArticleProse(props: ArticleProseProps) {
           const container = document.createElement('div')
           container.className = 'article-mermaid'
           container.dataset.mermaidCode = code
-          container.innerHTML = svg
+          container.innerHTML = `
+            <div class="article-mermaid-header">
+              <button type="button" class="article-mermaid-expand-btn" aria-label="${t().expandDiagram}" title="${t().expandDiagram}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                <span>${t().expandDiagram}</span>
+              </button>
+            </div>
+            <div class="article-mermaid-svg-wrapper">${svg}</div>
+          `
           preElement.replaceWith(container)
         } catch {
-          // Graceful fallback: preserve pre block
+          cleanupMermaidErrorNodes(diagramId)
         }
       }
     } catch {
-      // Graceful fallback: leave as pre
     }
   }
 
@@ -84,19 +103,37 @@ export function ArticleProse(props: ArticleProseProps) {
         startOnLoad: false,
         theme: isDark ? 'dark' : 'neutral',
         securityLevel: 'loose',
+        suppressErrorRendering: true,
         fontFamily: 'var(--sans, system-ui, sans-serif)',
       })
       for (const container of containers) {
         const code = container.dataset.mermaidCode
-        if (!code) continue
+        const svgWrapper = container.querySelector('.article-mermaid-svg-wrapper')
+        if (!code || !svgWrapper) continue
         const diagramId = `mermaid-${Math.random().toString(36).slice(2, 9)}`
         try {
           const { svg } = await mermaid.render(diagramId, code)
-          container.innerHTML = svg
+          svgWrapper.innerHTML = svg
         } catch {
+          cleanupMermaidErrorNodes(diagramId)
         }
       }
     } catch {
+    }
+  }
+
+  const handleArticleClick = (e: MouseEvent) => {
+    const target = e.target as HTMLElement | null
+    if (!target) return
+    const expandBtn = target.closest<HTMLElement>('.article-mermaid-expand-btn')
+    const svgWrapper = target.closest<HTMLElement>('.article-mermaid-svg-wrapper')
+    if (expandBtn || svgWrapper) {
+      const container = target.closest<HTMLElement>('.article-mermaid')
+      const svg = container?.querySelector('.article-mermaid-svg-wrapper svg')
+      if (svg) {
+        setActiveSvg(svg.outerHTML)
+        setIsModalOpen(true)
+      }
     }
   }
 
@@ -119,10 +156,25 @@ export function ArticleProse(props: ArticleProseProps) {
   })
 
   return (
-    <article
-      ref={articleRef}
-      class={`article-prose ${props.class ?? ''}`}
-      innerHTML={sanitizedHtml()}
-    />
+    <>
+      <article
+        ref={articleRef}
+        class={`article-prose ${props.class ?? ''}`}
+        innerHTML={sanitizedHtml()}
+        onClick={handleArticleClick}
+      />
+      <DiagramModal
+        open={isModalOpen()}
+        svgHtml={activeSvg()}
+        onClose={() => setIsModalOpen(false)}
+        labels={{
+          zoomIn: t().zoomIn,
+          zoomOut: t().zoomOut,
+          resetZoom: t().resetZoom,
+          panHint: t().diagramPanHint,
+          close: t().close,
+        }}
+      />
+    </>
   )
 }

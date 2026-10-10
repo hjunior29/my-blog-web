@@ -88,6 +88,11 @@ export interface Copy {
 
   readonly backToArticles: string
   readonly tableOfContents: string
+  readonly expandDiagram: string
+  readonly zoomIn: string
+  readonly zoomOut: string
+  readonly resetZoom: string
+  readonly diagramPanHint: string
   readonly shareArticle: string
   readonly shareViaWebShare: string
   readonly copyArticleLink: string

@@ -1,8 +1,8 @@
 import {
   Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Asterisk, Bell, Bold, BookOpen,
   Bookmark, Check, ChevronRight, CircleAlert, Code, Copy, Download, Edit3, ExternalLink, Eye, EyeOff,
-  FileText, Heading, Image, Inbox, Italic, List, LoaderCircle, Moon, Music, Pause, Play, Plus, Printer, Quote, RotateCw,
-  Search, Share2, Sun, Trash2, Triangle, Upload, Video, X, ZoomIn,
+  FileText, Heading, Image, Inbox, Italic, List, LoaderCircle, Maximize2, Minus, Moon, Music, Pause, Play, Plus, Printer, Quote, RotateCcw, RotateCw,
+  Search, Share2, Sun, Trash2, Triangle, Upload, Video, X, ZoomIn, ZoomOut,
 } from 'lucide-solid'
 import { Dynamic } from 'solid-js/web'
 
@@ -14,7 +14,8 @@ export const iconSet = {
   eye: Eye, eyeOff: EyeOff, fileText: FileText, heading: Heading, image: Image, inbox: Inbox, italic: Italic,
   list: List, loader: LoaderCircle, moon: Moon, music: Music, plus: Plus, quote: Quote, retry: RotateCw,
   search: Search, share: Share2, sun: Sun, trash: Trash2, triangle: Triangle, upload: Upload, video: Video,
-  print: Printer, close: X, x: X, play: Play, pause: Pause, zoomIn: ZoomIn,
+  print: Printer, close: X, x: X, play: Play, pause: Pause, zoomIn: ZoomIn, zoomOut: ZoomOut,
+  maximize: Maximize2, minus: Minus, reset: RotateCcw,
 }
 
 export type IconName = keyof typeof iconSet

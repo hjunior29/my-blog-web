@@ -49,17 +49,17 @@
   pointer-events: none;
   box-shadow: inset 0 1px 2px #ffffff4d;
 }
-.ds-book-stripe { position: relative; display: flex; flex: 1; width: 100%; overflow: hidden; background: var(--book-color); transform: translateZ(0); }
+.ds-book-stripe { position: relative; display: flex; flex: 0 0 46%; height: 46%; width: 100%; overflow: hidden; background: var(--book-color); transform: translateZ(0); }
 .ds-book-bind { width: 8.2%; min-width: 8.2%; align-self: stretch; background: var(--book-binding); }
 .ds-book-stripe > .ds-book-bind { position: absolute; height: 100%; mix-blend-mode: overlay; }
-.ds-book-body { display: flex; width: 100%; }
+.ds-book-body { display: flex; flex: 1 1 54%; min-height: 0; width: 100%; overflow: hidden; }
 .ds-book-body > .ds-book-bind { opacity: .2; }
-.ds-book-content { display: flex; flex-direction: column; flex: 1; min-width: 0; padding: 6.1%; gap: 12.2449cqw; container-type: inline-size; }
-.ds-book-title { margin: 0; color: var(--book-text); font-family: 'Geist', var(--sans); font-size: 10.5cqw; font-weight: 600; line-height: 1.25; letter-spacing: -.02em; text-wrap: balance; }
+.ds-book-content { display: flex; flex-direction: column; justify-content: space-between; flex: 1; min-width: 0; padding: 5.5% 6.1%; gap: 4cqw; container-type: inline-size; }
+.ds-book-title { margin: 0; color: var(--book-text); font-family: 'Geist', var(--sans); font-size: clamp(13px, 8.5cqw, 17px); font-weight: 600; line-height: 1.25; letter-spacing: -.02em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-overflow: ellipsis; text-wrap: balance; }
 .ds-book-icon { line-height: 0; }
 .ds-book-icon > svg { display: block; }
 .ds-book-illustration { object-fit: cover; }
-.ds-book-simple .ds-book-body { height: 100%; }
+.ds-book-simple .ds-book-body { height: 100%; flex: 1; }
 .ds-book-simple .ds-book-content { gap: 8.1633cqw; }
 .ds-book-simple .ds-book-title { font-size: 12cqw; text-shadow: 0 .025em .5px color-mix(in srgb, var(--book-color) 80%, white 20%), -.02em -.02em .5px color-mix(in srgb, var(--book-color) 80%, black 20%); }
 .ds-book-simple.ds-book-colored .ds-book-cover { background: var(--book-color); }
