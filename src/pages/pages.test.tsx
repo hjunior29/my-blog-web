@@ -311,12 +311,53 @@ describe('Public Pages', () => {
     ))
 
     const [backLink] = await findAllByRole('link', { name: /Back to all articles|Voltar para todos os artigos/i })
-    expect(container.querySelector('.article-reader .ds-bookmark-ribbon')?.getAttribute('aria-hidden')).toBe('true')
+    expect(container.querySelector('.article-reader .ds-bookmark-ribbon')?.classList.contains('ds-bookmark-ribbon-interactive')).toBe(true)
     expect(backLink.getAttribute('href')).toBe('/posts')
     backLink.click()
 
     expect(await findByText('Shelf')).not.toBeNull()
     expect(window.location.pathname).toBe('/posts')
+  })
+
+  it('ArticlePage displays resume banner when a reading bookmark exists', async () => {
+    window.localStorage.setItem('blog_bookmark_saved-article', JSON.stringify({
+      slug: 'saved-article',
+      progress: 0.45,
+      timestamp: Date.now(),
+    }))
+    window.history.pushState({}, '', '/posts/saved-article')
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    vi.spyOn(apiClient, 'getPostBySlug').mockResolvedValue({
+      id: 'p2',
+      slug: 'saved-article',
+      title: 'Saved Article Post',
+      summary: 'Lead',
+      content_md: 'Body',
+      content_html: '<p>Body paragraph</p>',
+      featured_image_media_id: null,
+      status: 'published',
+      published_at: 1727400000,
+      created_at: 1727390000,
+      updated_at: 1727400000,
+      author_id: 'user-1',
+      tags: [],
+      version: 1,
+    })
+
+    const { container, findByText } = render(() => (
+      <I18nProvider>
+        <Router>
+          <Route path="/posts/:slug" component={ArticlePage} />
+        </Router>
+      </I18nProvider>
+    ))
+
+    const bannerPrompt = await findByText(/45%/)
+    expect(bannerPrompt).not.toBeNull()
+    const resumeBtn = container.querySelector('.ds-reading-resume-actions .button') as HTMLButtonElement
+    expect(resumeBtn).not.toBeNull()
+    resumeBtn.click()
+    expect(scrollToSpy).toHaveBeenCalled()
   })
 
   it('AboutPage renders author title and colophon', () => {

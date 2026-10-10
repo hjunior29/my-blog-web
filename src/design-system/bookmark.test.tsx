@@ -28,7 +28,34 @@ describe('BookmarkRibbon component', () => {
     const ribbon = container.querySelector('.ds-bookmark-ribbon') as HTMLElement
     expect(ribbon.getAttribute('aria-hidden')).toBe('true')
     expect(ribbon.classList.contains('ds-bookmark-ribbon-static')).toBe(true)
-    expect((ribbon.firstElementChild as HTMLElement).style.getPropertyValue('--ribbon-progress')).toBe('1')
+    const band = container.querySelector('.ds-bookmark-ribbon-band') as HTMLElement
+    expect(band.style.getPropertyValue('--ribbon-progress')).toBe('1')
+  })
+
+  it('renders an interactive ribbon with pin and triggers callback on click', () => {
+    const onBookmark = vi.fn()
+    const { container } = render(() => (
+      <BookmarkRibbon progress={0.5} onBookmark={onBookmark} />
+    ))
+    const ribbon = container.querySelector('.ds-bookmark-ribbon') as HTMLElement
+    expect(ribbon.getAttribute('aria-hidden')).toBeNull()
+    const trigger = container.querySelector('.ds-bookmark-ribbon-trigger') as HTMLButtonElement
+    trigger.click()
+    expect(onBookmark).toHaveBeenCalledWith(0.5)
+  })
+
+  it('renders pin when savedProgress is provided and opens menu if progress differs', () => {
+    const onBookmark = vi.fn()
+    const onJumpToSaved = vi.fn()
+    const { container } = render(() => (
+      <BookmarkRibbon progress={0.2} savedProgress={0.8} onBookmark={onBookmark} onJumpToSaved={onJumpToSaved} />
+    ))
+    const pin = container.querySelector('.ds-bookmark-ribbon-pin') as HTMLElement
+    expect(pin).not.toBeNull()
+    const trigger = container.querySelector('.ds-bookmark-ribbon-trigger') as HTMLButtonElement
+    trigger.click()
+    const menu = container.querySelector('.ds-bookmark-menu') as HTMLElement
+    expect(menu).not.toBeNull()
   })
 
   it('follows the reading position of its target and stops listening on unmount', () => {

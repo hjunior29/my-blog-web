@@ -99,6 +99,16 @@ export interface Copy {
   readonly copyArticleLink: string
   readonly copyCode: string
   readonly codeCopied: string
+  readonly bookmarkAriaLabel: (percent: number) => string
+  readonly bookmarkSaveAction: string
+  readonly bookmarkSavedToast: (percent: number) => string
+  readonly bookmarkRemovedToast: string
+  readonly bookmarkResumePrompt: (percent: number) => string
+  readonly bookmarkResumeAction: string
+  readonly bookmarkJumpAction: (percent: number) => string
+  readonly bookmarkUpdateAction: (percent: number) => string
+  readonly bookmarkClearAction: string
+  readonly bookmarkDismissAction: string
   readonly linkCopied: string
   readonly linkCopyFailed: string
   readonly printArticle: string
