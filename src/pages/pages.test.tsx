@@ -319,18 +319,12 @@ describe('Public Pages', () => {
     expect(window.location.pathname).toBe('/posts')
   })
 
-  it('ArticlePage displays resume banner when a reading bookmark exists', async () => {
-    window.localStorage.setItem('blog_bookmark_saved-article', JSON.stringify({
-      slug: 'saved-article',
-      progress: 0.45,
-      timestamp: Date.now(),
-    }))
-    window.history.pushState({}, '', '/posts/saved-article')
-    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  it('ArticlePage renders interactive BookmarkRibbon for pull-to-top navigation', async () => {
+    window.history.pushState({}, '', '/posts/pull-top-article')
     vi.spyOn(apiClient, 'getPostBySlug').mockResolvedValue({
       id: 'p2',
-      slug: 'saved-article',
-      title: 'Saved Article Post',
+      slug: 'pull-top-article',
+      title: 'Pull To Top Article',
       summary: 'Lead',
       content_md: 'Body',
       content_html: '<p>Body paragraph</p>',
@@ -352,12 +346,14 @@ describe('Public Pages', () => {
       </I18nProvider>
     ))
 
-    const bannerPrompt = await findByText(/45%/)
-    expect(bannerPrompt).not.toBeNull()
-    const resumeBtn = container.querySelector('.ds-reading-resume-actions .button') as HTMLButtonElement
-    expect(resumeBtn).not.toBeNull()
-    resumeBtn.click()
-    expect(scrollToSpy).toHaveBeenCalled()
+    const title = await findByText('Pull To Top Article')
+    expect(title).not.toBeNull()
+    const ribbon = container.querySelector('.article-reader .ds-bookmark-ribbon') as HTMLElement
+    expect(ribbon).not.toBeNull()
+    expect(ribbon.classList.contains('ds-bookmark-ribbon-interactive')).toBe(true)
+    const trigger = container.querySelector('.ds-bookmark-ribbon-trigger') as HTMLButtonElement
+    expect(trigger).not.toBeNull()
+    trigger.click()
   })
 
   it('AboutPage renders author title and colophon', () => {

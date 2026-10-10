@@ -3,8 +3,7 @@ import { useParams, useNavigate, A } from '@solidjs/router'
 import { useI18n } from '../i18n/index.ts'
 import { getCachedPost, prefetchPost } from '../lib/api/postsCache.ts'
 import type { PostViewModel } from '../lib/api/types.ts'
-import { ArticleProse, Alert, Badge, BookmarkRibbon, Button, Icon, ReadingResumeBanner, Skeleton, Toast, bookReturnHref, transitionArticleToBook } from '../design-system'
-import { getReadingBookmark, saveReadingBookmark, removeReadingBookmark, calculateResumeScrollY, type ReadingBookmark } from '../lib/storage/readingBookmark.ts'
+import { ArticleProse, Alert, Badge, BookmarkRibbon, Button, Icon, Skeleton, Toast, bookReturnHref, transitionArticleToBook } from '../design-system'
 
 const SHELF_PATH = '/posts'
 
@@ -21,50 +20,6 @@ export function ArticlePage() {
   const [loading, setLoading] = createSignal(!initialCached)
   const [errorStatus, setErrorStatus] = createSignal<number | null>(null)
   const [toastMessage, setToastMessage] = createSignal('')
-  const [savedBookmark, setSavedBookmark] = createSignal<ReadingBookmark | null>(null)
-  const [showResumeBanner, setShowResumeBanner] = createSignal(false)
-
-  createEffect(() => {
-    const slug = params.slug
-    if (!slug) return
-    const bookmark = getReadingBookmark(slug)
-    setSavedBookmark(bookmark)
-    if (bookmark && bookmark.progress >= 0.05 && bookmark.progress <= 0.95) {
-      setShowResumeBanner(true)
-    } else {
-      setShowResumeBanner(false)
-    }
-  })
-
-  const handleSaveBookmark = (progress: number) => {
-    const slug = params.slug
-    if (!slug) return
-    const bookmark = saveReadingBookmark(slug, progress)
-    setSavedBookmark(bookmark)
-    const pct = Math.round(bookmark.progress * 100)
-    setToastMessage(t().bookmarkSavedToast(pct))
-  }
-
-  const handleResumeReading = () => {
-    const bookmark = savedBookmark()
-    if (!bookmark || !articleElement) return
-    setShowResumeBanner(false)
-    const destY = calculateResumeScrollY(articleElement, bookmark.progress, 65)
-    window.scrollTo({ top: destY, behavior: 'smooth' })
-  }
-
-  const handleDismissBanner = () => {
-    setShowResumeBanner(false)
-  }
-
-  const handleClearBookmark = () => {
-    const slug = params.slug
-    if (!slug) return
-    removeReadingBookmark(slug)
-    setSavedBookmark(null)
-    setShowResumeBanner(false)
-    setToastMessage(t().bookmarkRemovedToast)
-  }
 
   const fetchPost = async () => {
     if (!params.slug) return
@@ -174,27 +129,9 @@ export function ArticlePage() {
           <article ref={articleElement} class="article-reader">
             <BookmarkRibbon
               target={() => articleElement}
-              interactive
-              savedProgress={savedBookmark()?.progress}
-              onBookmark={handleSaveBookmark}
-              onJumpToSaved={handleResumeReading}
-              onClearBookmark={handleClearBookmark}
-              ariaLabel={t().bookmarkAriaLabel}
-              jumpActionLabel={t().bookmarkJumpAction}
-              updateActionLabel={t().bookmarkUpdateAction}
-              clearActionLabel={t().bookmarkClearAction}
+              tooltipLabel={t().ribbonTooltip}
+              ariaLabel={t().ribbonAriaLabel}
             />
-
-            <Show when={showResumeBanner() && savedBookmark()}>
-              <ReadingResumeBanner
-                progress={savedBookmark()!.progress}
-                onResume={handleResumeReading}
-                onDismiss={handleDismissBanner}
-                label={t().bookmarkResumePrompt(Math.round(savedBookmark()!.progress * 100))}
-                resumeActionLabel={t().bookmarkResumeAction}
-                dismissLabel={t().bookmarkDismissAction}
-              />
-            </Show>
 
             <nav class="article-top-nav" aria-label="Article navigation">
               <A href={backHref()} class="article-back-btn" title={t().backToArticles} aria-label={t().backToArticles} onClick={handleBack}>

@@ -32,30 +32,25 @@ describe('BookmarkRibbon component', () => {
     expect(band.style.getPropertyValue('--ribbon-progress')).toBe('1')
   })
 
-  it('renders an interactive ribbon with pin and triggers callback on click', () => {
-    const onBookmark = vi.fn()
+  it('renders an interactive ribbon and triggers scrollTo on pull', () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const onPullToTop = vi.fn()
     const { container } = render(() => (
-      <BookmarkRibbon progress={0.5} onBookmark={onBookmark} />
+      <BookmarkRibbon
+        threshold={0}
+        tooltipLabel={(p) => `Back to top · ${p}%`}
+        onPullToTop={onPullToTop}
+      />
     ))
     const ribbon = container.querySelector('.ds-bookmark-ribbon') as HTMLElement
     expect(ribbon.getAttribute('aria-hidden')).toBeNull()
     const trigger = container.querySelector('.ds-bookmark-ribbon-trigger') as HTMLButtonElement
+    expect(trigger).not.toBeNull()
+    const tooltip = container.querySelector('.ds-bookmark-ribbon-tooltip') as HTMLElement
+    expect(tooltip).not.toBeNull()
     trigger.click()
-    expect(onBookmark).toHaveBeenCalledWith(0.5)
-  })
-
-  it('renders pin when savedProgress is provided and opens menu if progress differs', () => {
-    const onBookmark = vi.fn()
-    const onJumpToSaved = vi.fn()
-    const { container } = render(() => (
-      <BookmarkRibbon progress={0.2} savedProgress={0.8} onBookmark={onBookmark} onJumpToSaved={onJumpToSaved} />
-    ))
-    const pin = container.querySelector('.ds-bookmark-ribbon-pin') as HTMLElement
-    expect(pin).not.toBeNull()
-    const trigger = container.querySelector('.ds-bookmark-ribbon-trigger') as HTMLButtonElement
-    trigger.click()
-    const menu = container.querySelector('.ds-bookmark-menu') as HTMLElement
-    expect(menu).not.toBeNull()
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+    expect(onPullToTop).toHaveBeenCalled()
   })
 
   it('follows the reading position of its target and stops listening on unmount', () => {
